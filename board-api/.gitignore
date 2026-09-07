@@ -1,0 +1,8 @@
+node_modules
+.env
+.env.local
+
+# 2단계에서 만들 SQLite 파일. DB 파일은 저장소에 올리지 않는다.
+*.db
+*.db-journal
+*.sqlite

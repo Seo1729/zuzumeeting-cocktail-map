@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "target": "es2023",
+    "lib": ["ES2023"],
+    "types": ["node"],
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+
+    /* Node가 타입만 지워서 바로 실행하므로 컴파일 결과물을 만들지 않는다.
+       erasableSyntaxOnly는 "지우기만 해서는 실행할 수 없는 문법"(enum, 생성자 파라미터
+       프로퍼티 등)을 미리 막아준다. 이게 꺼져 있으면 실행 시점에 터진다. */
+    "noEmit": true,
+    "erasableSyntaxOnly": true,
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "skipLibCheck": true
+  },
+  "include": ["src"]
+}

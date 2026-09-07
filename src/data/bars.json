@@ -2,7 +2,7 @@
   {
     "id": "sample-bar-1",
     "name": "__SAMPLE__ 구정문 샘플바",
-    "district": "구정문",
+    "district": "대학로",
     "address": "__SAMPLE__ 전주시 덕진구 (실제 주소로 교체하세요)",
     "lat": 35.8467,
     "lng": 127.129,

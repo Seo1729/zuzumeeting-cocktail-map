@@ -91,8 +91,10 @@ export default function MapPage() {
 function BottomSheet({ bar, onClose }: { bar: Bar; onClose: () => void }) {
   const menu = headlineMenu(bar)
 
+  // z-10은 지도 위라는 것을 눈에 보이게 못박아 두는 것이다.
+  // 실제로 지도의 z-index를 가두는 것은 KakaoMapView 쪽의 isolate다.
   return (
-    <div className="absolute inset-x-0 bottom-0 p-3">
+    <div className="absolute inset-x-0 bottom-0 z-10 p-3">
       <div className="relative rounded-2xl border border-line bg-surface p-4 shadow-lg shadow-black/40">
         <button
           type="button"

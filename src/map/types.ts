@@ -47,6 +47,8 @@ export interface KakaoMarkerImage {
 export interface KakaoMap {
   setCenter(latlng: KakaoLatLng): void
   panTo(latlng: KakaoLatLng): void
+  /** 숫자가 작을수록 확대. 1이 가장 가깝고 커질수록 넓게 보인다. */
+  getLevel(): number
   setLevel(level: number): void
   setBounds(bounds: KakaoLatLngBounds): void
   relayout(): void

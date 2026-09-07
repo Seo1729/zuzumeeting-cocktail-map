@@ -20,6 +20,15 @@ interface KakaoMapViewProps {
 /** 전주 시내 중심. 마커가 하나도 없을 때의 기본 위치. */
 const JEONJU_CENTER = { lat: 35.8242, lng: 127.148 }
 
+/*
+  setBounds는 마커들을 화면에 꽉 채우려 한다. 마커가 하나뿐이면 영역이 한 점으로 접혀
+  최대 배율까지 확대되고(실제로 축척 30m, 건물 한 채가 화면을 채웠다), 두 곳이 붙어 있어도
+  같은 일이 덜한 정도로 벌어진다. 그러면 "여기가 어디쯤인지"를 알 수 없어 지도가 쓸모없어진다.
+  상권 필터를 걸면 바가 한 곳만 남는 일이 흔하므로 확대 상한을 둔다.
+  레벨은 숫자가 작을수록 확대. 4는 축척 100m 정도로 골목과 큰길이 같이 보인다.
+*/
+const CLOSEST_LEVEL = 4
+
 function pinSvg(fill: string, stroke: string, dot: string): string {
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="36" viewBox="0 0 28 36"><path d="M14 1c-7.2 0-13 5.8-13 13 0 9 11.3 19.4 11.8 19.8a1.8 1.8 0 0 0 2.4 0C15.7 33.4 27 23 27 14c0-7.2-5.8-13-13-13z" fill="${fill}" stroke="${stroke}" stroke-width="1.6"/><circle cx="14" cy="14" r="4.5" fill="${dot}"/></svg>`
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
@@ -98,6 +107,8 @@ export default function KakaoMapView({ markers, selectedId, onSelect }: KakaoMap
 
     if (markers.length > 0) {
       map.setBounds(bounds)
+      // setBounds가 정한 배율이 상한을 넘었으면 되돌린다. 중심은 그대로 둔다.
+      if (map.getLevel() < CLOSEST_LEVEL) map.setLevel(CLOSEST_LEVEL)
     } else {
       map.setCenter(new maps.LatLng(JEONJU_CENTER.lat, JEONJU_CENTER.lng))
       map.setLevel(6)
@@ -130,8 +141,15 @@ export default function KakaoMapView({ markers, selectedId, onSelect }: KakaoMap
     return <MapFallback reason={error} />
   }
 
+  /*
+    isolate(= isolation: isolate)가 없으면 안 된다.
+    카카오는 지도 안에 z-index 1~2짜리 레이어를 직접 만드는데, 이 래퍼가 쌓임 맥락을
+    만들지 않으면 그 z-index가 바깥으로 새어나와 지도 위에 얹은 UI(바텀시트)와 같은 층에서
+    경쟁한다. 실제로 핀을 누르면 시트가 떴다가 panTo 직후 지도 레이어에 덮였다.
+    여기서 맥락을 끊어 카카오의 z-index가 이 div 안에서만 의미를 갖게 한다.
+  */
   return (
-    <div className="relative h-full w-full">
+    <div className="relative isolate h-full w-full">
       <div ref={containerRef} className="h-full w-full bg-surface" />
       {status === 'loading' && (
         <p className="absolute inset-0 flex items-center justify-center text-[15px] text-muted">

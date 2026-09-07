@@ -39,6 +39,42 @@ npm run dev
 
 `.env.local`은 `.env.example`을 복사해서 만듭니다. 발급 절차는 `README.md` 4절에 있습니다.
 
+### USB에서 직접 작업하는 것에 대해
+
+이 프로젝트는 처음에 **FAT32 이동식 USB 드라이브**에서 만들어졌습니다.
+USB를 그대로 꽂아서 이어 작업할 수도 있지만, 내장 드라이브에 클론하는 편을 권합니다.
+
+| | USB에서 직접 | **내장 드라이브에 클론** |
+|---|---|---|
+| 속도 | 느림 | 빠름 |
+| `npm install` | 이미 있으면 생략 가능 | 한 번 필요 (내장 드라이브면 금방) |
+| git 설정 | `safe.directory` 예외 필요 | 불필요 |
+| 위험 | 작업 중 USB 분리 시 손상 | 없음 |
+
+느린 이유는 `node_modules`가 작은 파일 1만 2천여 개(약 160MB)인데
+USB + FAT32 조합이 이런 작업에 특히 약하기 때문입니다.
+`git init`이 "dubious ownership"으로 거부되는 것도 FAT32가 파일 소유권을
+기록하지 않아서입니다(7절 참고).
+
+USB 폴더를 통째로 복사하는 방법도 있지만, 그 1만 2천 개 파일을 USB에서
+읽어내는 것이 클론 + `npm install`보다 오래 걸립니다.
+
+### 두 대 이상에서 번갈아 작업할 때
+
+**작업 시작 전에 `git pull`, 끝나면 `git push`.**
+
+```bash
+git pull      # 시작할 때
+git push      # 끝낼 때
+```
+
+이걸 빠뜨리면 양쪽에서 각자 커밋이 쌓여 나중에 충돌을 풀어야 합니다.
+USB 하나만 들고 다니면 저장소가 하나뿐이라 이 문제가 없는 대신 계속 느립니다 —
+그게 USB 방식의 유일한 장점입니다.
+
+**Claude Code 세션 자체는 기기 간에 옮겨지지 않습니다.** 폴더를 옮기든 클론하든
+새 기기에서는 새 세션이고, 그래서 이 문서가 있습니다.
+
 ---
 
 ## 3. 현재 상태
@@ -133,12 +169,12 @@ npm run dev
 | 함정 | 대응 |
 |---|---|
 | **커밋 전 검증을 안 해서 깨진 `bars.json`을 push한 적 있음** | 데이터 수정 후 반드시 `npm run validate`. 커밋 전 `npm run build`가 더 안전 |
-| 외장/네트워크 드라이브에서 `git init`이 "dubious ownership"으로 거부 | `git config --global --add safe.directory '<경로>'` |
+| FAT32 USB 등 소유권을 기록하지 않는 드라이브에서 `git init`이 "dubious ownership"으로 거부 | `git config --global --add safe.directory '<경로>'`. 기기마다 한 번씩 필요 |
 | Node 22.6 미만에서 `bad option: --experimental-strip-types` | Node 22.6+ 설치 |
 | `.env.local`을 만들어도 지도가 안 뜸 | **개발 서버 재시작.** Vite는 환경변수를 시작할 때 한 번만 읽음 |
 | 카카오 도메인 등록에 포트를 빼먹어 지도가 안 뜸 | `http://localhost:5173` 처럼 **포트까지** 등록 |
 | PowerShell에서 `curl`이 다른 명령의 별칭이라 API 테스트 실패 | Git Bash를 쓰거나 `curl.exe`로 호출 |
-| `npm install`이 매우 느림 (드라이브에 따라 수 분) | 정상. 백그라운드로 돌리고 기다릴 것 |
+| `npm install`이 매우 느림 (수 분) | USB/FAT32에서 작업하면 정상. `node_modules`가 작은 파일 1만 2천여 개다. 백그라운드로 돌리고 기다리거나, 내장 드라이브로 옮길 것 (2절 참고) |
 
 ---
 

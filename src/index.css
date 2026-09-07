@@ -1,0 +1,46 @@
+@import "tailwindcss";
+
+/*
+  다크 테마 고정. 밤에 어두운 바 안에서 보는 앱이라 라이트 테마를 만들지 않는다.
+  본문 최소 폰트 15px — 조명이 어둡고 마신 상태를 가정한다.
+*/
+@theme {
+  --color-ink: #0b0b0f;
+  --color-surface: #16161d;
+  --color-surface-2: #1f1f29;
+  --color-line: #2c2c38;
+  --color-text: #f2f2f5;
+  --color-muted: #a1a1ae;
+  --color-accent: #e8b45c;
+  --color-accent-ink: #2a1d06;
+}
+
+html {
+  color-scheme: dark;
+  background-color: var(--color-ink);
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  background-color: var(--color-ink);
+  color: var(--color-text);
+  font-size: 15px;
+  line-height: 1.55;
+  font-family: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", system-ui,
+    -apple-system, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 기본 탭 하이라이트 제거 — 모바일에서 카드 누를 때 파란 박스 방지 */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 필터 칩 줄은 가로 스크롤되지만 스크롤바는 감춘다. 데스크톱에서 회색 막대가 보이지 않게. */
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}

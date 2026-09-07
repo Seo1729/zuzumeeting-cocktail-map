@@ -1,0 +1,76 @@
+import { z } from 'zod'
+
+/*
+  이 앱의 단 하나뿐인 데이터 정의.
+  bars.json을 손으로 채우다 생기는 오타를 빌드 시점에 잡는 것이 목적이다.
+  스키마를 고치면 반드시 `npm run validate`로 기존 데이터가 여전히 통과하는지 확인할 것.
+*/
+
+export const District = z.enum(['대학로', '객사', '신시가지'])
+export type District = z.infer<typeof District>
+
+export const BaseSpirit = z.enum([
+  'GIN',
+  'WHISKY',
+  'RUM',
+  'VODKA',
+  'TEQUILA',
+  'BRANDY',
+  'LIQUEUR',
+  'WINE',
+  'NON_ALC',
+])
+export type BaseSpirit = z.infer<typeof BaseSpirit>
+
+/** 화면에 보여줄 베이스 주류 한글 라벨. */
+export const BASE_SPIRIT_LABEL: Record<BaseSpirit, string> = {
+  GIN: '진',
+  WHISKY: '위스키',
+  RUM: '럼',
+  VODKA: '보드카',
+  TEQUILA: '데킬라',
+  BRANDY: '브랜디',
+  LIQUEUR: '리큐어',
+  WINE: '와인',
+  NON_ALC: '논알콜',
+}
+
+export const MenuItem = z.object({
+  /** "네그로니", "시그니처 - 전주의 밤" */
+  name: z.string().min(1),
+  /** 원 단위 정수. 12000 → 12,000원. float 금지. */
+  price: z.number().int().nonnegative(),
+  base: BaseSpirit,
+  isSignature: z.boolean().default(false),
+  /** 한 줄 설명. 운영진 코멘트. */
+  desc: z.string().default(''),
+})
+export type MenuItem = z.infer<typeof MenuItem>
+
+export const Bar = z.object({
+  /** kebab-case slug. URL `/bar/{id}`에 그대로 들어간다. */
+  id: z.string().regex(/^[a-z0-9-]+$/, 'kebab-case 소문자/숫자/하이픈만 사용할 수 있습니다'),
+  name: z.string().min(1),
+  district: District,
+  address: z.string().min(1),
+  /** 전주 범위를 벗어나면 위경도를 바꿔 넣었을 가능성이 높다. */
+  lat: z.number().min(35.7).max(35.9),
+  lng: z.number().min(127.0).max(127.3),
+  /** "19:00 - 02:00" */
+  hours: z.string().default(''),
+  /** ["일"] */
+  closedDays: z.array(z.string()).default([]),
+  /** ["조용함", "1인 가능", "위스키 강함"] */
+  tags: z.array(z.string()).default([]),
+  beginnerFriendly: z.boolean().default(false),
+  /** 운영진 한 줄 평. 카카오맵에 없는 정보이고 이 앱의 존재 이유다. */
+  note: z.string().default(''),
+  menu: z.array(MenuItem).default([]),
+  instagram: z.url().nullable().default(null),
+  /** "2026-09" — UI에 반드시 노출한다. */
+  dataAsOf: z.string(),
+})
+
+export type Bar = z.infer<typeof Bar>
+
+export const BarList = z.array(Bar)

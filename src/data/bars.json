@@ -1,0 +1,57 @@
+[
+  {
+    "id": "sample-bar-1",
+    "name": "__SAMPLE__ 구정문 샘플바",
+    "district": "구정문",
+    "address": "__SAMPLE__ 전주시 덕진구 (실제 주소로 교체하세요)",
+    "lat": 35.8467,
+    "lng": 127.129,
+    "hours": "19:00 - 02:00",
+    "closedDays": ["일"],
+    "tags": ["조용함", "1인 가능", "입문자 환영"],
+    "beginnerFriendly": true,
+    "note": "__SAMPLE__ 운영진 한 줄 평이 들어가는 자리입니다. 이 앱에서 가장 중요한 칸이니 꼭 채우세요.",
+    "menu": [
+      {
+        "name": "__SAMPLE__ 시그니처 칵테일",
+        "price": 13000,
+        "base": "GIN",
+        "isSignature": true,
+        "desc": "샘플 메뉴 설명입니다."
+      },
+      {
+        "name": "__SAMPLE__ 네그로니",
+        "price": 12000,
+        "base": "GIN",
+        "isSignature": false,
+        "desc": ""
+      }
+    ],
+    "instagram": null,
+    "dataAsOf": "2026-09"
+  },
+  {
+    "id": "sample-bar-2",
+    "name": "__SAMPLE__ 객사 샘플바",
+    "district": "객사",
+    "address": "__SAMPLE__ 전주시 완산구 (실제 주소로 교체하세요)",
+    "lat": 35.818,
+    "lng": 127.145,
+    "hours": "20:00 - 03:00",
+    "closedDays": [],
+    "tags": ["위스키 강함", "늦게까지"],
+    "beginnerFriendly": false,
+    "note": "__SAMPLE__ 두 번째 샘플입니다. 실제 데이터를 채운 뒤 이 두 건은 지우세요.",
+    "menu": [
+      {
+        "name": "__SAMPLE__ 올드패션드",
+        "price": 15000,
+        "base": "WHISKY",
+        "isSignature": true,
+        "desc": "샘플 메뉴 설명입니다."
+      }
+    ],
+    "instagram": null,
+    "dataAsOf": "2026-09"
+  }
+]

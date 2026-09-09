@@ -11,13 +11,23 @@ import {
   PRICE_BAND_LABEL,
   formatPrice,
   headlineMenu,
+  isInJeonju,
   selectBars,
 } from '../domain/selectors'
 import { useBarQuery } from './useBarQuery'
+import { useUserLocation, type LocationError } from './useUserLocation'
+
+const LOCATION_ERROR_MESSAGE: Record<LocationError, string> = {
+  denied: '위치 권한이 꺼져 있습니다. 주소창의 자물쇠 아이콘에서 허용으로 바꿔주세요.',
+  unsupported: '이 브라우저에서는 현재 위치를 쓸 수 없습니다.',
+  timeout: '위치를 확인하지 못했습니다. 실내에서는 잘 안 잡힙니다.',
+  unavailable: '위치를 확인하지 못했습니다.',
+}
 
 export default function MapPage() {
   const [query, update] = useBarQuery()
   const [selectedId, setSelectedId] = useState<string | null>(null)
+  const geo = useUserLocation()
 
   // 리스트와 같은 필터를 그대로 적용한다. 두 화면이 다른 결과를 보여주면 혼란스럽다.
   const bars = useMemo(() => selectBars(ALL_BARS, query), [query])
@@ -38,6 +48,23 @@ export default function MapPage() {
   }
 
   const handleSelect = (id: string | null) => setSelectedId(id)
+
+  /*
+    "전주 밖이면 지도에 반영하지 않는다"는 도메인 판단이라 여기서 거른다.
+    KakaoMapView에 전주라는 개념을 넣으면 지도 레이어가 이 앱 전용이 되어버린다.
+
+    방학에 집에서 앱을 열면 지도가 전국 축척으로 벌어져 정작 봐야 할 바들이 뭉친다.
+    그래서 좌표는 받았어도 null을 넘기고, 대신 아래에서 안내 문구를 띄운다.
+  */
+  const outsideJeonju =
+    geo.location !== null && !isInJeonju(geo.location.lat, geo.location.lng)
+  const userLocation = outsideJeonju ? null : geo.location
+
+  const locationNotice = outsideJeonju
+    ? '현재 위치가 전주 밖이라 지도에 표시하지 않았습니다.'
+    : geo.status === 'error' && geo.error !== null
+      ? LOCATION_ERROR_MESSAGE[geo.error]
+      : null
 
   return (
     <div className="flex h-[calc(100dvh-68px)] flex-col">
@@ -76,8 +103,33 @@ export default function MapPage() {
         </div>
       )}
 
+      {locationNotice && (
+        <p className="shrink-0 px-4 pb-2 text-[15px] leading-relaxed text-muted">
+          {locationNotice}
+        </p>
+      )}
+
       <div className="relative min-h-0 flex-1">
-        <KakaoMapView markers={markers} selectedId={selectedId} onSelect={handleSelect} />
+        <KakaoMapView
+          markers={markers}
+          selectedId={selectedId}
+          onSelect={handleSelect}
+          userLocation={userLocation}
+        />
+
+        {/*
+          우하단이 아니라 우상단에 두는 이유: 마커를 누르면 바텀시트가 하단을 덮는다.
+          지도 앱 관례는 우하단이지만, 여기서는 눌리지 않는 버튼이 되는 쪽이 더 나쁘다.
+        */}
+        <button
+          type="button"
+          onClick={geo.request}
+          disabled={geo.status === 'requesting'}
+          className="absolute top-3 right-3 z-10 rounded-full border border-line bg-surface/95 px-4 py-2.5 text-[15px] font-medium text-text shadow-lg shadow-black/30 backdrop-blur active:bg-surface-2 disabled:text-muted"
+        >
+          {geo.status === 'requesting' ? '확인 중…' : '내 위치'}
+        </button>
+
         {selectedBar && <BottomSheet bar={selectedBar} onClose={() => setSelectedId(null)} />}
       </div>
     </div>

@@ -20,6 +20,20 @@ export interface MapMarker {
   lng: number
 }
 
+/*
+  지도에 찍는 "나 여기 있음" 점. MapMarker와 절대 같은 타입으로 묶지 않는다.
+
+  MapMarker는 "누르면 바텀시트가 열리는 바 하나"라는 뜻이고, 사용자 위치는 누를 수 없는
+  참조점이다. 둘을 한 배열에 섞으면 onSelect(id)로 사용자 위치가 선택되고, 바텀시트가
+  존재하지 않는 바를 찾다가 아무것도 못 띄운다.
+*/
+export interface UserLocation {
+  lat: number
+  lng: number
+  /** 미터 단위 오차 반경. 실내나 지하에서는 수백 미터까지 나온다. 숨기지 않고 원으로 그린다. */
+  accuracy: number
+}
+
 // --- 카카오맵 SDK 최소 타입 선언 ---
 // 실제로 호출하는 것만 적는다. `any`를 쓰지 않기 위한 선언이지 완전한 타입 정의가 아니다.
 
@@ -61,6 +75,13 @@ export interface KakaoMarker {
   getPosition(): KakaoLatLng
 }
 
+/** 위치 정확도 원. 반경은 미터 단위. */
+export interface KakaoCircle {
+  setMap(map: KakaoMap | null): void
+  setPosition(latlng: KakaoLatLng): void
+  setRadius(radius: number): void
+}
+
 export interface KakaoMaps {
   /** autoload=false로 불러왔을 때 실제 초기화를 시작하는 진입점. */
   load(callback: () => void): void
@@ -81,6 +102,17 @@ export interface KakaoMaps {
     size: KakaoSize,
     options?: { offset?: KakaoPoint },
   ) => KakaoMarkerImage
+  Circle: new (options: {
+    center: KakaoLatLng
+    /** 미터 단위. */
+    radius: number
+    strokeWeight?: number
+    strokeColor?: string
+    strokeOpacity?: number
+    fillColor?: string
+    fillOpacity?: number
+    zIndex?: number
+  }) => KakaoCircle
   Size: new (width: number, height: number) => KakaoSize
   Point: new (x: number, y: number) => KakaoPoint
   event: {

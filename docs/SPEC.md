@@ -121,8 +121,27 @@ scripts/
 ```
 
 **지도 격리 규칙 (중요)**: `window.kakao` 참조는 `src/map/` 안에서만 허용한다.
-`KakaoMapView`는 `markers: MapMarker[]`, `selectedId: string | null`, `onSelect(id)` 세 개의
-props만 받는다. 이렇게 하면 나중에 다른 지도 제공자로 교체할 때 이 폴더만 갈아끼우면 된다.
+`KakaoMapView`는 아래 네 개의 props만 받는다. 이렇게 하면 나중에 다른 지도 제공자로
+교체할 때 이 폴더만 갈아끼우면 된다.
+
+- `markers: MapMarker[]`
+- `selectedId: string | null`
+- `onSelect(id)`
+- `userLocation: UserLocation | null`
+
+> **`userLocation`은 원래 지시서에 없던 네 번째 prop이다.** "지도에 내 위치를 표시"
+> 기능을 추가하면서 승인을 받아 늘렸다. 사용자 위치를 `markers`에 섞지 않은 이유는,
+> `MapMarker`가 "누르면 바텀시트가 열리는 바"라는 뜻이라 참조점을 같은 배열에 넣으면
+> `onSelect(id)` 계약이 깨지기 때문이다.
+>
+> 이 기능에 따라붙는 제약 두 가지:
+> - **위치를 저장하지 않는다.** 2절의 "사용자 데이터를 저장하지 마라"에 걸린다.
+>   메모리에만 두고 탭을 닫으면 사라진다.
+> - **위치를 URL 쿼리에 넣지 않는다.** 필터 상태를 URL에 담아 링크를 공유하는 앱이라,
+>   좌표가 섞이면 오픈채팅방에 링크를 붙여넣는 순간 자기 위치가 공개된다.
+>
+> 좌표가 전주 밖인지 판단하는 일은 `KakaoMapView`가 아니라 `MapPage`가 한다.
+> 지도 레이어에 "전주"라는 도메인 개념을 넣지 않기 위해서다.
 
 ## 6. 화면 명세
 

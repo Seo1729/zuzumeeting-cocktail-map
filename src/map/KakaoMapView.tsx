@@ -1,11 +1,17 @@
 import { useEffect, useRef } from 'react'
-import type { KakaoMap, KakaoMarker, KakaoMarkerImage, MapMarker } from './types'
+import type {
+  KakaoCircle,
+  KakaoMap,
+  KakaoMarker,
+  KakaoMarkerImage,
+  MapMarker,
+  UserLocation,
+} from './types'
 import { useKakaoLoader } from './useKakaoLoader'
 
 /*
   카카오 SDK를 감싼 유일한 컴포넌트.
-  바깥에서 받는 것은 markers / selectedId / onSelect 세 개뿐이고,
-  이 파일은 Bar 도메인 타입을 알지 못한다.
+  바깥에서 받는 것은 아래 네 개뿐이고, 이 파일은 Bar 도메인 타입을 알지 못한다.
 
   지도 인스턴스와 마커 배열은 state가 아니라 useRef에 둔다.
   마커를 state에 넣으면 마커를 만들 때마다 리렌더가 돌고, 그 리렌더가 다시 마커를 만든다.
@@ -15,6 +21,16 @@ interface KakaoMapViewProps {
   markers: MapMarker[]
   selectedId: string | null
   onSelect: (id: string | null) => void
+  /*
+    사용자의 현재 위치. 없으면 null.
+
+    markers에 섞지 않고 별도 prop으로 받는다. 사용자 위치는 "누를 수 있는 바"가 아니라
+    참조점이라, 같은 배열에 넣으면 onSelect 계약이 깨진다(types.ts 주석 참고).
+
+    전주 밖 좌표를 걸러내는 일은 여기서 하지 않는다. 그건 도메인 판단이라
+    MapPage가 isInJeonju로 거른 뒤 null을 넘긴다. 이 파일은 받은 좌표를 그릴 뿐이다.
+  */
+  userLocation: UserLocation | null
 }
 
 /** 전주 시내 중심. 마커가 하나도 없을 때의 기본 위치. */
@@ -38,12 +54,39 @@ function pinSvg(fill: string, stroke: string, dot: string): string {
 const PIN_DEFAULT = pinSvg('#1f1f29', '#a1a1ae', '#a1a1ae')
 const PIN_SELECTED = pinSvg('#e8b45c', '#e8b45c', '#2a1d06')
 
-export default function KakaoMapView({ markers, selectedId, onSelect }: KakaoMapViewProps) {
+/*
+  사용자 위치는 물방울 핀이 아니라 점으로 그린다.
+  핀은 "여기 가게가 있다"는 뜻으로 이미 쓰고 있어서, 같은 모양이면 바로 착각한다.
+  색도 accent(주황)를 피해 파랑을 쓴다 — 지도 앱들의 공통 관례라 설명이 필요 없다.
+*/
+const USER_DOT = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(
+  '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="6.5" fill="#4c9aff" stroke="#ffffff" stroke-width="3"/></svg>',
+)}`
+
+const USER_ACCURACY_STYLE = {
+  strokeWeight: 1,
+  strokeColor: '#4c9aff',
+  strokeOpacity: 0.6,
+  fillColor: '#4c9aff',
+  fillOpacity: 0.12,
+} as const
+
+export default function KakaoMapView({
+  markers,
+  selectedId,
+  onSelect,
+  userLocation,
+}: KakaoMapViewProps) {
   const { status, maps, error } = useKakaoLoader()
   const containerRef = useRef<HTMLDivElement | null>(null)
   const mapRef = useRef<KakaoMap | null>(null)
   const markerRefs = useRef<Map<string, KakaoMarker>>(new Map())
-  const imagesRef = useRef<{ base: KakaoMarkerImage; selected: KakaoMarkerImage } | null>(null)
+  const imagesRef = useRef<{
+    base: KakaoMarkerImage
+    selected: KakaoMarkerImage
+    user: KakaoMarkerImage
+  } | null>(null)
+  const userRefs = useRef<{ dot: KakaoMarker; circle: KakaoCircle } | null>(null)
 
   // onSelect가 매 렌더마다 새 함수여도 마커를 다시 만들지 않도록 ref에 최신 값을 담아둔다.
   const onSelectRef = useRef(onSelect)
@@ -67,6 +110,10 @@ export default function KakaoMapView({ markers, selectedId, onSelect }: KakaoMap
       selected: new maps.MarkerImage(PIN_SELECTED, new maps.Size(28, 36), {
         offset: new maps.Point(14, 36),
       }),
+      // 핀은 뾰족한 끝이 좌표를 가리키지만(offset y=36), 점은 한가운데가 좌표다.
+      user: new maps.MarkerImage(USER_DOT, new maps.Size(20, 20), {
+        offset: new maps.Point(10, 10),
+      }),
     }
 
     // 빈 곳을 누르면 선택 해제. 바텀시트를 닫는 유일한 방법이 X 버튼이면 답답하다.
@@ -76,6 +123,7 @@ export default function KakaoMapView({ markers, selectedId, onSelect }: KakaoMap
       // StrictMode는 이 이펙트를 두 번 돌린다. 정리하지 않으면 같은 컨테이너에 지도가 두 개 생긴다.
       mapRef.current = null
       imagesRef.current = null
+      userRefs.current = null
       container.innerHTML = ''
     }
   }, [maps])
@@ -136,6 +184,52 @@ export default function KakaoMapView({ markers, selectedId, onSelect }: KakaoMap
     const selected = selectedId === null ? undefined : markerRefs.current.get(selectedId)
     if (map && selected) map.panTo(selected.getPosition())
   }, [selectedId, markers])
+
+  /*
+    4) 사용자 위치 점과 정확도 원.
+
+    바 마커와 완전히 분리된 이펙트다. 위치가 갱신되어도 바 마커를 다시 그리지 않고,
+    필터가 바뀌어도 이 점은 그대로 남는다.
+
+    정확도 원을 같이 그리는 이유: 부원들이 이 앱을 여는 곳은 술집 안이나 지하다.
+    GPS가 안 잡히면 Wi-Fi·기지국으로 떨어져 오차가 수백 미터까지 난다. 점만 찍으면
+    그 점을 정확한 위치로 믿게 되므로, 얼마나 못 믿을 값인지 눈에 보이게 한다.
+  */
+  useEffect(() => {
+    const map = mapRef.current
+    const images = imagesRef.current
+    if (!maps || !map || !images || !userLocation) return
+
+    const position = new maps.LatLng(userLocation.lat, userLocation.lng)
+
+    const circle = new maps.Circle({
+      center: position,
+      radius: userLocation.accuracy,
+      ...USER_ACCURACY_STYLE,
+      zIndex: 0,
+    })
+    circle.setMap(map)
+
+    const dot = new maps.Marker({
+      position,
+      title: '현재 위치',
+      image: images.user,
+      // 선택된 바 핀(10)보다는 아래, 나머지 핀(1)보다는 위.
+      zIndex: 2,
+    })
+    dot.setMap(map)
+
+    userRefs.current = { dot, circle }
+
+    // 버튼을 눌러 위치를 받았으니 그 자리를 보여준다. 배율은 건드리지 않는다.
+    map.panTo(position)
+
+    return () => {
+      dot.setMap(null)
+      circle.setMap(null)
+      userRefs.current = null
+    }
+  }, [maps, userLocation])
 
   if (status === 'error') {
     return <MapFallback reason={error} />

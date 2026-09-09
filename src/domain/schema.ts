@@ -35,6 +35,17 @@ export const BASE_SPIRIT_LABEL: Record<BaseSpirit, string> = {
   NON_ALC: '논알콜',
 }
 
+/*
+  전주 시 좌표 범위.
+
+  bars.json 검증(위경도를 바꿔 넣은 오타 잡기)과, 사용자의 현재 위치가 전주 안인지
+  판단하는 데 같이 쓴다. 두 곳에 숫자를 따로 적어두면 한쪽만 고치는 사고가 난다.
+*/
+export const JEONJU_BOUNDS = {
+  lat: { min: 35.7, max: 35.9 },
+  lng: { min: 127.0, max: 127.3 },
+} as const
+
 export const MenuItem = z.object({
   /** "네그로니", "시그니처 - 전주의 밤" */
   name: z.string().min(1),
@@ -54,8 +65,8 @@ export const Bar = z.object({
   district: District,
   address: z.string().min(1),
   /** 전주 범위를 벗어나면 위경도를 바꿔 넣었을 가능성이 높다. */
-  lat: z.number().min(35.7).max(35.9),
-  lng: z.number().min(127.0).max(127.3),
+  lat: z.number().min(JEONJU_BOUNDS.lat.min).max(JEONJU_BOUNDS.lat.max),
+  lng: z.number().min(JEONJU_BOUNDS.lng.min).max(JEONJU_BOUNDS.lng.max),
   /** "19:00 - 02:00" */
   hours: z.string().default(''),
   /** ["일"] */

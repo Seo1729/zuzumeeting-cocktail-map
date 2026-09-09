@@ -1,4 +1,4 @@
-import type { Bar, District, MenuItem } from './schema'
+import { JEONJU_BOUNDS, type Bar, type District, type MenuItem } from './schema'
 
 /*
   필터/정렬/파생값 계산. 순수 함수만 둔다 — React를 import하지 않는다.
@@ -6,6 +6,22 @@ import type { Bar, District, MenuItem } from './schema'
 */
 
 export const DISTRICTS = ['대학로', '객사', '신시가지'] as const
+
+/*
+  좌표가 전주 안인지.
+
+  방학에 집(서울·부산)에서 앱을 여는 부원이 있다. 그 위치를 지도에 반영하면
+  지도가 전국 축척으로 벌어져 정작 봐야 할 바들이 점으로 뭉친다.
+  전주 밖이면 지도를 건드리지 않고 안내만 하기 위한 판단 함수다.
+*/
+export function isInJeonju(lat: number, lng: number): boolean {
+  return (
+    lat >= JEONJU_BOUNDS.lat.min &&
+    lat <= JEONJU_BOUNDS.lat.max &&
+    lng >= JEONJU_BOUNDS.lng.min &&
+    lng <= JEONJU_BOUNDS.lng.max
+  )
+}
 
 export type DistrictFilter = District | '전체'
 

@@ -19,6 +19,7 @@ export const BaseSpirit = z.enum([
   'LIQUEUR',
   'WINE',
   'NON_ALC',
+  'KOREAN_WHISKY'
 ])
 export type BaseSpirit = z.infer<typeof BaseSpirit>
 
@@ -30,9 +31,10 @@ export const BASE_SPIRIT_LABEL: Record<BaseSpirit, string> = {
   VODKA: '보드카',
   TEQUILA: '데킬라',
   BRANDY: '브랜디',
-  LIQUEUR: '리큐어',
+  LIQUEUR: '리큐르',
   WINE: '와인',
   NON_ALC: '논알콜',
+  KOREAN_WHISKY: '전통주'
 }
 
 /*

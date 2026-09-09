@@ -39,9 +39,9 @@ export type PriceBand = (typeof PRICE_BANDS)[number]
 
 export const PRICE_BAND_LABEL: Record<PriceBand, string> = {
   전체: '가격 전체',
-  under: '1만원 이하',
-  mid: '1만 ~ 1.5만원',
-  over: '1.5만원 이상',
+  under: '1.3만원 이하',
+  mid: '1.3만 ~ 1.6만원',
+  over: '1.6만원 이상',
 }
 
 const PRICE_BAND_RANGE: Record<Exclude<PriceBand, '전체'>, [number, number]> = {

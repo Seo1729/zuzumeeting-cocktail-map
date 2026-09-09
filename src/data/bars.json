@@ -44,7 +44,7 @@
     "tags": [],
     "beginnerFriendly": false,
     "note": "흑과 백으로만 이루어진 잉크처럼 세련된 분위기의 클래식 바",
-    "menu": [{ "name": "화이트 크리스마스", "price": 15000, "base": "VODCA", "isSignature": true, "desc": ""}],
+    "menu": [{ "name": "화이트 크리스마스", "price": 15000, "base": "VODKA", "isSignature": true, "desc": ""}],
     "instagram": null,
     "dataAsOf": "2026-09"
   },
@@ -60,7 +60,7 @@
     "tags": [],
     "beginnerFriendly": false,
     "note": "해리포터에 나온 모든 술과 컨셉을 온전히 경험하고 즐길 수 있는 캐쥬얼 바",
-    "menu": [{ "name": "해리에몽", "price": 14000, "base": "VODCA", "isSignature": true, "desc": ""}],
+    "menu": [{ "name": "해리에몽", "price": 14000, "base": "VODKA", "isSignature": true, "desc": ""}],
     "instagram": null,
     "dataAsOf": "2026-09"
   },

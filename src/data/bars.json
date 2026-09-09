@@ -11,7 +11,7 @@
     "tags": ["클래식 바"],
     "beginnerFriendly": true,
     "note": "구정문을 대표하는 몰트바의 정석",
-    "menu": [{ "name": "피치 못할 사랑", "price": 15000, "base": "리큐르", "isSignature": true, "desc": "" },
+    "menu": [{ "name": "피치 못할 사랑", "price": 15000, "base": "LIQUEUR", "isSignature": true, "desc": "" },
              { "name": "카카오 피즈", "price": 14000, "base": "GIN", "isSignature": false, "desc": "" }],
     "instagram": null,
     "dataAsOf": "2026-09"
@@ -28,7 +28,7 @@
     "tags": ["캐쥬얼 바"],
     "beginnerFriendly": false,
     "note": "잠시 쉬어갈 수 있는 [공 백]을 나타낸 캐쥬얼 바",
-    "menu": [{ "name": "파우스트", "price": 14000, "base": "럼", "isSignature": false, "desc": ""}],
+    "menu": [{ "name": "파우스트", "price": 14000, "base": "RUM", "isSignature": false, "desc": ""}],
     "instagram": null,
     "dataAsOf": "2026-09"
   },
@@ -44,7 +44,7 @@
     "tags": [],
     "beginnerFriendly": false,
     "note": "흑과 백으로만 이루어진 잉크처럼 세련된 분위기의 클래식 바",
-    "menu": [{ "name": "화이트 크리스마스", "price": 15000, "base": "모름", "isSignature": true, "desc": ""}],
+    "menu": [{ "name": "화이트 크리스마스", "price": 15000, "base": "VODCA", "isSignature": true, "desc": ""}],
     "instagram": null,
     "dataAsOf": "2026-09"
   },
@@ -60,7 +60,7 @@
     "tags": [],
     "beginnerFriendly": false,
     "note": "해리포터에 나온 모든 술과 컨셉을 온전히 경험하고 즐길 수 있는 캐쥬얼 바",
-    "menu": [{ "name": "해리에몽", "price": 14000, "base": "모름", "isSignature": true, "desc": ""}],
+    "menu": [{ "name": "해리에몽", "price": 14000, "base": "VODCA", "isSignature": true, "desc": ""}],
     "instagram": null,
     "dataAsOf": "2026-09"
   },

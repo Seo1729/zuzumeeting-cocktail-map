@@ -9,6 +9,10 @@ import { z } from 'zod'
 export const District = z.enum(['대학로', '객사', '신시가지'])
 export type District = z.infer<typeof District>
 
+/*
+  메뉴의 분류. 이름은 '기주'지만 실제로는 메뉴판의 장 제목을 그대로 옮긴 것에 가깝다.
+  BEER는 기주가 아니지만 바 메뉴판에 한 장으로 들어 있어 넣을 자리가 필요했다.
+*/
 export const BaseSpirit = z.enum([
   'GIN',
   'WHISKY',
@@ -18,6 +22,7 @@ export const BaseSpirit = z.enum([
   'BRANDY',
   'LIQUEUR',
   'WINE',
+  'BEER',
   'NON_ALC',
   'KOREAN_WHISKY'
 ])
@@ -33,6 +38,7 @@ export const BASE_SPIRIT_LABEL: Record<BaseSpirit, string> = {
   BRANDY: '브랜디',
   LIQUEUR: '리큐르',
   WINE: '와인',
+  BEER: '맥주',
   NON_ALC: '논알콜',
   KOREAN_WHISKY: '전통주'
 }

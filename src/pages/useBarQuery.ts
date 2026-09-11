@@ -22,7 +22,18 @@ const PARAM = {
   beginner: 'beginner',
   price: 'price',
   sort: 'sort',
+  keyword: 'q',
 } as const
+
+/*
+  검색어는 길이를 자른다. 주소창에 긴 문자열을 붙여 만든 링크가 돌아다니는 것을 막는다.
+  실제 검색어는 길어야 열 글자 안쪽이라 잘릴 일이 없다.
+*/
+const KEYWORD_MAX = 40
+
+function parseKeyword(value: string | null): string {
+  return (value ?? '').trim().slice(0, KEYWORD_MAX)
+}
 
 function parseDistrict(value: string | null): DistrictFilter {
   const found = DISTRICTS.find((district) => district === value)
@@ -48,6 +59,7 @@ export function useBarQuery(): [BarQuery, (patch: Partial<BarQuery>) => void] {
       beginnerOnly: searchParams.get(PARAM.beginner) === '1',
       priceBand: parsePriceBand(searchParams.get(PARAM.price)),
       sort: parseSort(searchParams.get(PARAM.sort)),
+      keyword: parseKeyword(searchParams.get(PARAM.keyword)),
     }),
     [searchParams],
   )
@@ -61,6 +73,7 @@ export function useBarQuery(): [BarQuery, (patch: Partial<BarQuery>) => void] {
       if (next.beginnerOnly) params.set(PARAM.beginner, '1')
       if (next.priceBand !== DEFAULT_QUERY.priceBand) params.set(PARAM.price, next.priceBand)
       if (next.sort !== DEFAULT_QUERY.sort) params.set(PARAM.sort, next.sort)
+      if (next.keyword !== '') params.set(PARAM.keyword, next.keyword)
       // replace: 칩을 여러 번 누른 뒤 뒤로가기가 필터 조작 이력에 갇히지 않게 한다.
       setSearchParams(params, { replace: true })
     },

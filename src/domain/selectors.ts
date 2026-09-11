@@ -1,4 +1,4 @@
-import { JEONJU_BOUNDS, type Bar, type District, type MenuItem } from './schema'
+import { BASE_SPIRIT_LABEL, JEONJU_BOUNDS, type Bar, type District, type MenuItem } from './schema'
 
 /*
   필터/정렬/파생값 계산. 순수 함수만 둔다 — React를 import하지 않는다.
@@ -55,6 +55,8 @@ export interface BarQuery {
   beginnerOnly: boolean
   priceBand: PriceBand
   sort: SortKey
+  /** 검색어. 빈 문자열이면 검색하지 않는다. */
+  keyword: string
 }
 
 export const DEFAULT_QUERY: BarQuery = {
@@ -62,6 +64,21 @@ export const DEFAULT_QUERY: BarQuery = {
   beginnerOnly: false,
   priceBand: '전체',
   sort: 'name',
+  keyword: '',
+}
+
+/*
+  검색 비교용 정규화.
+
+  공백을 지우는 것이 핵심이다. 폰에서 급히 칠 때 "진토닉"이라고 붙여 쓰는데
+  데이터에는 "진 토닉"으로 들어 있다. 공백을 남겨두면 이 흔한 입력이 전부 빗나간다.
+  영문 메뉴가 섞일 수 있어 소문자로도 맞춘다.
+
+  한글 초성 검색(ㅇㄹ → 아람)은 넣지 않았다. 바 11곳, 한 바의 메뉴 30여 개 규모에서는
+  부분 일치로 충분하고, 초성 분해는 눈에 보이는 이득 없이 코드만 늘린다.
+*/
+export function normalizeForSearch(text: string): string {
+  return text.replace(/\s+/g, '').toLowerCase()
 }
 
 /** 메뉴가 없으면 null. 가격 정렬과 가격대 필터에서 '가격 정보 없음'으로 취급한다. */
@@ -80,9 +97,50 @@ export function orderedMenu(bar: Bar): MenuItem[] {
   return [...bar.menu].sort((a, b) => Number(b.isSignature) - Number(a.isSignature))
 }
 
+/*
+  바 검색이 훑는 범위.
+
+  이름만 훑으면 "이름을 이미 아는 사람"에게만 쓸모가 있다. 정작 신입부원은 이름을 모르고
+  "클래식", "해리포터" 같은 인상으로 찾는다. 그래서 태그와 운영진 한 줄 평까지 넣는다.
+
+  주소는 일부러 뺐다. 전부 "전북 전주시 덕진구…"로 시작해서 두 글자만 쳐도 전부 걸린다.
+  상권은 이미 칩 필터가 있으므로 검색어로 또 거를 이유가 없다.
+*/
+function barSearchTargets(bar: Bar): string[] {
+  return [bar.name, bar.note, ...bar.tags]
+}
+
+export function matchesBarKeyword(bar: Bar, keyword: string): boolean {
+  const needle = normalizeForSearch(keyword)
+  if (needle === '') return true
+  return barSearchTargets(bar).some((text) => normalizeForSearch(text).includes(needle))
+}
+
+/*
+  메뉴 검색이 훑는 범위. 이름 · 기주 · 설명.
+
+  설명까지 넣는 것이 이 검색의 값어치다. desc에 재료가 들어 있어서 "라임"을 치면
+  김렛 · 모히또 · 다이키리가 한 번에 나온다. 이름만 훑으면 재료로 고르는 길이 막힌다.
+  기주는 한글 라벨로 비교한다 — 부원이 "GIN"이 아니라 "진"이라고 치기 때문이다.
+*/
+function menuSearchTargets(item: MenuItem): string[] {
+  return [item.name, item.desc, BASE_SPIRIT_LABEL[item.base]]
+}
+
+export function matchesMenuKeyword(item: MenuItem, keyword: string): boolean {
+  const needle = normalizeForSearch(keyword)
+  if (needle === '') return true
+  return menuSearchTargets(item).some((text) => normalizeForSearch(text).includes(needle))
+}
+
+export function filterMenu(menu: readonly MenuItem[], keyword: string): MenuItem[] {
+  return menu.filter((item) => matchesMenuKeyword(item, keyword))
+}
+
 export function matchesQuery(bar: Bar, query: BarQuery): boolean {
   if (query.district !== '전체' && bar.district !== query.district) return false
   if (query.beginnerOnly && !bar.beginnerFriendly) return false
+  if (!matchesBarKeyword(bar, query.keyword)) return false
 
   if (query.priceBand !== '전체') {
     const price = minPrice(bar)

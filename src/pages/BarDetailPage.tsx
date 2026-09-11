@@ -1,7 +1,18 @@
+import { useMemo, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
+import SearchInput from '../components/SearchInput'
 import { findBar } from '../domain/bars'
 import { BASE_SPIRIT_LABEL, type Bar, type MenuItem } from '../domain/schema'
-import { formatPrice, orderedMenu } from '../domain/selectors'
+import { filterMenu, formatPrice, orderedMenu } from '../domain/selectors'
+
+/*
+  메뉴가 이보다 적으면 검색칸을 띄우지 않는다.
+
+  메뉴 한두 개짜리 바에 검색칸이 붙으면 화면만 차지하고 누를 이유가 없다.
+  지금 데이터가 정확히 그 모양이다 — 아람이 33개, 나머지는 0~1개.
+  한 화면에 안 들어오기 시작하는 지점이 대략 여기다.
+*/
+const MENU_SEARCH_MIN = 8
 
 export default function BarDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -97,6 +108,18 @@ function InfoRow({ label, value }: { label: string; value: string }) {
 }
 
 function MenuSection({ bar }: { bar: Bar }) {
+  /*
+    메뉴 검색어는 URL에 넣지 않는다.
+
+    리스트의 필터는 "이 조건으로 본 화면"을 오픈채팅방에 공유하려고 URL에 둔다.
+    반면 메뉴 검색은 바 앞에 서서 한 잔 고르는 동안만 쓰고 버리는 상태다.
+    공유할 일이 없는 값을 URL에 넣으면 뒤로가기 이력만 지저분해진다.
+  */
+  const [keyword, setKeyword] = useState('')
+
+  const ordered = useMemo(() => orderedMenu(bar), [bar])
+  const shown = useMemo(() => filterMenu(ordered, keyword), [ordered, keyword])
+
   if (bar.menu.length === 0) {
     return (
       <section className="mt-6 px-4">
@@ -106,14 +129,38 @@ function MenuSection({ bar }: { bar: Bar }) {
     )
   }
 
+  const searchable = bar.menu.length >= MENU_SEARCH_MIN
+
   return (
     <section className="mt-6 px-4">
-      <h2 className="text-[18px] font-bold">메뉴</h2>
-      <ul className="mt-2">
-        {orderedMenu(bar).map((item, index) => (
-          <MenuRow key={`${item.name}-${index}`} item={item} />
-        ))}
-      </ul>
+      <div className="flex items-baseline justify-between gap-3">
+        <h2 className="text-[18px] font-bold">메뉴</h2>
+        {/* 검색 중에는 몇 개로 좁혀졌는지, 아니면 전체가 몇 개인지 알려준다. */}
+        <p className="shrink-0 text-[15px] text-muted">
+          {keyword !== '' ? `${shown.length} / ${ordered.length}개` : `${ordered.length}개`}
+        </p>
+      </div>
+
+      {searchable && (
+        <div className="mt-3">
+          <SearchInput
+            label="메뉴 검색"
+            value={keyword}
+            onChange={setKeyword}
+            placeholder="메뉴, 재료, 기주로 검색 (예: 라임, 진)"
+          />
+        </div>
+      )}
+
+      {shown.length === 0 ? (
+        <p className="mt-4 text-[15px] text-muted">'{keyword}'에 해당하는 메뉴가 없습니다.</p>
+      ) : (
+        <ul className="mt-2">
+          {shown.map((item, index) => (
+            <MenuRow key={`${item.name}-${index}`} item={item} />
+          ))}
+        </ul>
+      )}
     </section>
   )
 }

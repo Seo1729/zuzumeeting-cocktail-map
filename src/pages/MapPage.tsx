@@ -40,8 +40,15 @@ export default function MapPage() {
 
   const selectedBar = selectedId === null ? null : (bars.find((bar) => bar.id === selectedId) ?? null)
 
-  // 지도에 칩을 다 늘어놓으면 지도가 안 보인다. 상권만 칩으로 두고 나머지는 한 줄로 알린다.
+  /*
+    지도에 칩을 다 늘어놓으면 지도가 안 보인다. 상권만 칩으로 두고 나머지는 한 줄로 알린다.
+
+    검색어도 여기 넣는다. 리스트에서 검색하고 지도로 넘어오면 같은 필터가 걸린 채라
+    핀이 줄어드는데, 지도에는 검색칸이 없어서 왜 줄었는지 알 방법이 없다.
+    지도까지 검색칸을 넣는 대신(지도를 가린다) 이 한 줄로 알리고 해제할 수 있게 한다.
+  */
   const otherFilters: string[] = []
+  if (query.keyword !== '') otherFilters.push(`'${query.keyword}' 검색`)
   if (query.beginnerOnly) otherFilters.push('입문자 추천만')
   if (query.priceBand !== DEFAULT_QUERY.priceBand) {
     otherFilters.push(PRICE_BAND_LABEL[query.priceBand])
@@ -95,7 +102,13 @@ export default function MapPage() {
           <p className="truncate text-[15px] text-muted">{otherFilters.join(' · ')} 적용 중</p>
           <button
             type="button"
-            onClick={() => update({ beginnerOnly: false, priceBand: DEFAULT_QUERY.priceBand })}
+            onClick={() =>
+              update({
+                keyword: '',
+                beginnerOnly: false,
+                priceBand: DEFAULT_QUERY.priceBand,
+              })
+            }
             className="shrink-0 text-[15px] text-accent"
           >
             해제

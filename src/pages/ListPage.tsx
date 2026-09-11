@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import BarCard from '../components/BarCard'
 import Chip from '../components/Chip'
+import SearchInput from '../components/SearchInput'
 import { ALL_BARS } from '../domain/bars'
 import {
   DEFAULT_QUERY,
@@ -20,7 +21,8 @@ export default function ListPage() {
   const isFiltered =
     query.district !== DEFAULT_QUERY.district ||
     query.beginnerOnly ||
-    query.priceBand !== DEFAULT_QUERY.priceBand
+    query.priceBand !== DEFAULT_QUERY.priceBand ||
+    query.keyword !== ''
 
   return (
     <div>
@@ -30,6 +32,19 @@ export default function ListPage() {
           전북대 칵테일 동아리 · 대학로 / 객사 / 신시가지
         </p>
       </header>
+
+      {/*
+        검색칸을 칩보다 위에 둔다. 이름을 아는 사람은 칩을 거치지 않고 바로 치는 것이
+        가장 빠른 길이고, 이 앱의 목표가 "3초 안에 정하기"다.
+      */}
+      <div className="px-4 pb-3">
+        <SearchInput
+          label="바 검색"
+          value={query.keyword}
+          onChange={(keyword) => update({ keyword })}
+          placeholder="바 이름, 분위기, 한 줄 평으로 검색"
+        />
+      </div>
 
       {/* 상권 필터 */}
       <div className="no-scrollbar flex gap-2 overflow-x-auto px-4 pb-2">
@@ -87,7 +102,11 @@ export default function ListPage() {
       </div>
 
       {bars.length === 0 ? (
-        <EmptyState onReset={() => update(DEFAULT_QUERY)} showReset={isFiltered} />
+        <EmptyState
+          keyword={query.keyword}
+          onReset={() => update(DEFAULT_QUERY)}
+          showReset={isFiltered}
+        />
       ) : (
         <ul className="flex flex-col gap-3 px-4 pb-6">
           {bars.map((bar) => (
@@ -101,10 +120,24 @@ export default function ListPage() {
   )
 }
 
-function EmptyState({ onReset, showReset }: { onReset: () => void; showReset: boolean }) {
+function EmptyState({
+  keyword,
+  onReset,
+  showReset,
+}: {
+  keyword: string
+  onReset: () => void
+  showReset: boolean
+}) {
+  /*
+    검색어를 그대로 되돌려 보여준다. 오타를 친 경우 "조건에 맞는 바가 없습니다"만 보면
+    앱이 고장난 줄 알지만, 자기가 친 글자를 보면 바로 안다.
+  */
   return (
     <div className="px-4 py-16 text-center">
-      <p className="text-[16px] text-muted">조건에 맞는 바가 없습니다.</p>
+      <p className="text-[16px] text-muted">
+        {keyword !== '' ? `'${keyword}' 검색 결과가 없습니다.` : '조건에 맞는 바가 없습니다.'}
+      </p>
       {showReset && (
         <button
           type="button"

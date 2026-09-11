@@ -44,10 +44,16 @@ export const PRICE_BAND_LABEL: Record<PriceBand, string> = {
   over: '1.6만원 이상',
 }
 
+/*
+  경계는 위 라벨과 반드시 같은 숫자여야 한다.
+  한동안 라벨은 1.3만/1.6만인데 실제 경계는 1만/1.5만이었다. 화면에 적힌 글자와
+  동작이 다르면 사용자는 앱이 고장났다고 여기지, 경계가 다르다고 생각하지 않는다.
+  라벨을 고칠 때 이 표도 같이 고칠 것.
+*/
 const PRICE_BAND_RANGE: Record<Exclude<PriceBand, '전체'>, [number, number]> = {
-  under: [0, 10_000],
-  mid: [10_001, 15_000],
-  over: [15_001, Number.POSITIVE_INFINITY],
+  under: [0, 13_000],
+  mid: [13_001, 16_000],
+  over: [16_001, Number.POSITIVE_INFINITY],
 }
 
 export interface BarQuery {
@@ -81,10 +87,28 @@ export function normalizeForSearch(text: string): string {
   return text.replace(/\s+/g, '').toLowerCase()
 }
 
-/** 메뉴가 없으면 null. 가격 정렬과 가격대 필터에서 '가격 정보 없음'으로 취급한다. */
+/*
+  최저가를 셀 때 빼는 분류.
+
+  아람 메뉴판을 통째로 넣었더니 맥주 7,000원이 최저가가 되어, 칵테일이 12,000원부터인
+  몰트바가 "1.3만원 이하" 그룹에만 나왔다. 부원이 가격대로 바를 고를 때 보려는 것은
+  칵테일 값이지 맥주 값이 아니다.
+
+  메뉴 목록에서는 그대로 다 보여준다. 여기서 빼는 것은 '가격대 판정 기준'뿐이다.
+*/
+const PRICE_EXCLUDED_BASES = new Set<MenuItem['base']>(['BEER', 'NON_ALC'])
+
+/*
+  가격대 필터와 최저가순 정렬의 기준값.
+  칵테일이 한 잔도 없으면 null — '가격 정보 없음'으로 취급해 가격대를 고르면 빠진다.
+*/
 export function minPrice(bar: Bar): number | null {
-  if (bar.menu.length === 0) return null
-  return bar.menu.reduce((low, item) => Math.min(low, item.price), Number.POSITIVE_INFINITY)
+  let low = Number.POSITIVE_INFINITY
+  for (const item of bar.menu) {
+    if (PRICE_EXCLUDED_BASES.has(item.base)) continue
+    if (item.price < low) low = item.price
+  }
+  return low === Number.POSITIVE_INFINITY ? null : low
 }
 
 /** 카드에 한 줄로 보여줄 대표 메뉴. 시그니처가 있으면 그것, 없으면 첫 메뉴. */

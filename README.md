@@ -212,15 +212,18 @@ curl.exe -i "https://dapi.kakao.com/v2/maps/sdk.js?appkey=본인_JavaScript_키&
 **앱 설정 → 앱 → 플랫폼 키 → JavaScript 키 수정**의 **JavaScript SDK 도메인**에 등록합니다.
 (예전 콘솔에서는 "플랫폼 → Web 플랫폼 등록 → 사이트 도메인"이었습니다. 키별 설정으로 옮겨졌습니다.)
 
+지금 등록돼 있는 두 줄입니다.
+
 ```
 http://localhost:5173
-https://실제-배포-주소.pages.dev
+https://zuzumeeting-cocktail-map.maple4357.workers.dev
 ```
 
 - **포트까지 정확히** 적습니다. `http://localhost`만 등록하면 5173에서 안 됩니다
-- `http`와 `https`는 서로 다른 것으로 취급됩니다. 로컬은 `http`, 배포본은 `https`
+- `http`와 `https`는 서로 다른 것으로 취급됩니다. 로컬은 `http`, 배포본은 `https`.
+  배포 주소에는 **포트를 붙이지 않습니다**
 - 입력만 하고 끝내지 말고 **페이지 아래 저장 버튼을 누릅니다**
-- 배포 전이라면 `pages.dev` 줄은 **비워둡니다.** 그 주소는 배포해야 생깁니다(5절).
+- 아직 배포 전이라면 둘째 줄은 **비워둡니다.** 그 주소는 배포해야 생깁니다(5절).
   나중에 배포한 뒤 이 화면에 다시 와서 한 줄 추가하면 됩니다
 - 등록 반영에 **몇 분** 걸릴 수 있습니다. 바로 안 되면 잠깐 기다렸다 새로고침하세요
 
@@ -261,32 +264,54 @@ VITE_KAKAO_JS_KEY=여기에_복사한_JavaScript_키
 
 ### 4-9. 미리보기 배포에서는 지도가 안 뜹니다 (정상)
 
-Cloudflare Pages는 커밋마다 `abc123.프로젝트명.pages.dev` 같은 임시 주소를 만듭니다.
-이 주소들을 전부 등록할 수는 없고, 카카오 도메인 등록은 와일드카드(`*.pages.dev`)를
+Cloudflare는 커밋마다 `abc123-프로젝트명.…workers.dev` 같은 임시 미리보기 주소를 만듭니다.
+이 주소들을 전부 등록할 수는 없고, 카카오 도메인 등록은 와일드카드(`*.workers.dev`)를
 지원하지 않습니다.
 
 **운영 주소에서만 지도가 뜨는 것이 정상입니다.** 미리보기에서 안 된다고 당황하지 마세요.
+리스트와 상세는 미리보기에서도 정상 동작하므로, 지도 외의 변경은 거기서 확인하면 됩니다.
 
 사용량은 부원 20~30명 규모에서 무료 한도 근처에도 가지 않습니다.
 
 ---
 
-## 5. 배포하기 (Cloudflare Pages)
+## 5. 배포 (Cloudflare)
+
+### 지금 운영 중인 주소
+
+```
+https://zuzumeeting-cocktail-map.maple4357.workers.dev
+```
+
+**GitHub `main`에 push하면 Cloudflare가 자동으로 다시 배포합니다.** 평소에는
+이 절을 볼 일이 없고, 아래는 새로 만들거나 설정을 고칠 때 보는 내용입니다.
+
+> **Pages가 아니라 Workers로 배포돼 있습니다.** Cloudflare가 둘을 합치면서 지금은
+> 저장소를 연결해 만들면 Workers 쪽으로 만들어집니다. 주소 모양으로 구별합니다 —
+> `*.workers.dev`면 Workers, `*.pages.dev`면 Pages입니다.
+> **이 앱은 정적 파일 덩어리라 어느 쪽이든 똑같이 동작합니다.** 설정 항목 이름만 다릅니다.
+
+### 처음부터 다시 만든다면
 
 1. 이 폴더를 GitHub 저장소에 push 합니다
-2. [Cloudflare Pages](https://pages.cloudflare.com) → **Create a project → Connect to Git** → 저장소 선택
+2. [dash.cloudflare.com](https://dash.cloudflare.com) → **Workers & Pages** → 새로 만들기에서
+   **GitHub 저장소를 연결**하는 항목을 고릅니다
 3. 빌드 설정을 이렇게 넣습니다
    | 항목 | 값 |
    |---|---|
-   | Framework preset | `None` (또는 Vite) |
    | Build command | `npm run build` |
    | Build output directory | `dist` |
-4. **Settings → Environment variables**에 `VITE_KAKAO_JS_KEY`를 추가합니다 (Production/Preview 둘 다)
+   | Production branch | `main` |
+4. 환경변수에 `VITE_KAKAO_JS_KEY`를 추가합니다 (Production/Preview 둘 다)
    - **이걸 빠뜨리면 배포본 지도가 폴백 화면으로 뜹니다.** 키는 빌드할 때 번들 안에
      구워지므로, 로컬 `.env.local`은 Cloudflare와 아무 상관이 없습니다
    - Preview에도 넣어두지만, 미리보기 주소에서는 지도가 안 뜨는 게 정상입니다 (4-9 참고)
-5. 배포되면 `xxx.pages.dev` 주소가 나옵니다. **이 주소를 JavaScript SDK 도메인에 추가합니다** (4-4 참고)
-6. 부원 오픈채팅방에 링크를 공유하고 **"홈 화면에 추가"** 를 안내합니다
+5. 배포되면 주소가 나옵니다. **이 주소를 JavaScript SDK 도메인에 추가합니다** (4-4 참고).
+   **하기 전까지는 배포본 지도가 안 뜹니다.** `https`이고 포트는 붙이지 않습니다
+6. 부원 오픈채팅방에 링크를 공유하고 **"홈 화면에 추가"** 를 안내합니다 (6절에 문구)
+
+> 콘솔 메뉴 문구는 자주 바뀝니다. 이름이 조금 달라도 **기능으로** 찾으세요 —
+> "저장소 연결", "빌드 명령", "출력 디렉터리", "환경변수" 네 가지만 찾으면 됩니다.
 
 ### Node 버전 — 빌드가 실패하면 여기부터
 
@@ -301,10 +326,12 @@ Cloudflare Pages는 커밋마다 `abc123.프로젝트명.pages.dev` 같은 임�
 이 앱은 HashRouter를 써서 주소가 `/#/bar/aram` 꼴입니다. 서버는 항상 `/` 하나만
 내려주면 되므로 `_redirects` 파일이 필요 없습니다.
 
----
+### 잘못된 데이터는 배포되지 않습니다
 
-이후에는 `bars.json`을 고쳐서 push하면 Cloudflare가 자동으로 다시 배포합니다.
-`bars.json`이 잘못되어 있으면 **빌드가 실패해서 잘못된 데이터가 배포되지 않습니다.**
+`npm run build`가 `npm run validate`를 먼저 돌리기 때문에, `bars.json`이 깨져 있으면
+**Cloudflare 빌드가 실패하고 기존 배포본이 그대로 유지됩니다.** 망가진 데이터가
+부원들에게 보이는 일은 없습니다. 다만 고친 내용도 같이 안 올라가므로,
+push 전에 로컬에서 `npm run validate`를 돌려 확인하는 편이 빠릅니다.
 
 ---
 
@@ -373,7 +400,15 @@ board-api/           ※ 이 앱과 무관한 백엔드 학습용 연습 프로�
 ## 9. PWA(홈 화면 앱) 확인하는 법
 
 빌드 결과에는 서비스워커가 포함되어 있어, 한 번 연 뒤에는 네트워크가 없어도 리스트와 상세가 열립니다.
-직접 확인하려면:
+**배포본에서 서비스워커가 실제로 등록되어 앱 셸을 캐시하는 것까지 확인했습니다.**
+
+가장 간단한 확인은 배포 주소를 크롬으로 여는 것입니다.
+
+```
+https://zuzumeeting-cocktail-map.maple4357.workers.dev
+```
+
+로컬 빌드로 보려면:
 
 ```bash
 npm run build

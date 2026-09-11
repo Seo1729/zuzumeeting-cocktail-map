@@ -282,9 +282,26 @@ Cloudflare Pages는 커밋마다 `abc123.프로젝트명.pages.dev` 같은 임�
    | Build command | `npm run build` |
    | Build output directory | `dist` |
 4. **Settings → Environment variables**에 `VITE_KAKAO_JS_KEY`를 추가합니다 (Production/Preview 둘 다)
+   - **이걸 빠뜨리면 배포본 지도가 폴백 화면으로 뜹니다.** 키는 빌드할 때 번들 안에
+     구워지므로, 로컬 `.env.local`은 Cloudflare와 아무 상관이 없습니다
    - Preview에도 넣어두지만, 미리보기 주소에서는 지도가 안 뜨는 게 정상입니다 (4-9 참고)
 5. 배포되면 `xxx.pages.dev` 주소가 나옵니다. **이 주소를 JavaScript SDK 도메인에 추가합니다** (4-4 참고)
 6. 부원 오픈채팅방에 링크를 공유하고 **"홈 화면에 추가"** 를 안내합니다
+
+### Node 버전 — 빌드가 실패하면 여기부터
+
+저장소의 `.nvmrc`에 `22`를 적어뒀고 Cloudflare가 이 파일을 읽습니다.
+`npm run validate`가 Node 22.6+에서만 되는 옵션(`--experimental-strip-types`)을 쓰기 때문입니다.
+
+빌드 로그에 `bad option: --experimental-strip-types`가 보이면 Node가 낮게 잡힌 것입니다.
+`.nvmrc`가 안 먹으면 **Settings → Environment variables**에 `NODE_VERSION` = `22`를 추가하세요.
+
+### 새로고침 404는 걱정 안 해도 됩니다
+
+이 앱은 HashRouter를 써서 주소가 `/#/bar/aram` 꼴입니다. 서버는 항상 `/` 하나만
+내려주면 되므로 `_redirects` 파일이 필요 없습니다.
+
+---
 
 이후에는 `bars.json`을 고쳐서 push하면 Cloudflare가 자동으로 다시 배포합니다.
 `bars.json`이 잘못되어 있으면 **빌드가 실패해서 잘못된 데이터가 배포되지 않습니다.**

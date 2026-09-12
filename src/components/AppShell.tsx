@@ -12,7 +12,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-[480px] flex-col bg-ink">
-      <main className={showTabBar ? 'flex-1 pb-[68px]' : 'flex-1'}>{children}</main>
+      <main className={showTabBar ? 'flex-1 pb-[var(--tabbar-h)]' : 'flex-1'}>{children}</main>
       {showTabBar && <TabBar />}
     </div>
   )

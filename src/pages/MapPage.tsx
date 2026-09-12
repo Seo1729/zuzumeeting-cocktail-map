@@ -74,8 +74,8 @@ export default function MapPage() {
       : null
 
   return (
-    <div className="flex h-[calc(100dvh-68px)] flex-col">
-      <div className="no-scrollbar flex shrink-0 gap-2 overflow-x-auto px-4 pt-4 pb-2">
+    <div className="flex h-[calc(100dvh-var(--tabbar-h))] flex-col">
+      <div className="no-scrollbar flex shrink-0 gap-2 overflow-x-auto px-4 pt-[calc(16px+env(safe-area-inset-top))] pb-2">
         <Chip
           label="전체"
           selected={query.district === '전체'}

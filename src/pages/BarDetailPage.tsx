@@ -20,8 +20,9 @@ export default function BarDetailPage() {
 
   if (!bar) return <NotFound />
 
+  // pb는 하단 '길찾기' 버튼(fixed)에 가리지 않도록 그 높이 + 홈 인디케이터만큼 비운 값이다.
   return (
-    <article className="pb-[104px]">
+    <article className="pb-[calc(104px+env(safe-area-inset-bottom))]">
       <TopBar />
 
       <header className="px-4 pt-2">
@@ -83,8 +84,12 @@ function TopBar() {
     else navigate(-1)
   }
 
+  /*
+    pt는 노치 높이만큼 위를 띄운 값이다. 배경이 반투명이라, 띄운 만큼 노치 뒤까지
+    배경색이 깔려서 본문이 노치 밑으로 비쳐 지나가지 않는다.
+  */
   return (
-    <div className="sticky top-0 z-20 bg-ink/95 px-2 py-2 backdrop-blur">
+    <div className="sticky top-0 z-20 bg-ink/95 px-2 pt-[calc(8px+env(safe-area-inset-top))] pb-2 backdrop-blur">
       <button
         type="button"
         onClick={goBack}

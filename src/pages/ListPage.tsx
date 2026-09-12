@@ -26,7 +26,8 @@ export default function ListPage() {
 
   return (
     <div>
-      <header className="px-4 pt-6 pb-3">
+      {/* pt는 노치 높이(기기마다 다름) 위에 24px을 더 얹은 값이다. */}
+      <header className="px-4 pt-[calc(24px+env(safe-area-inset-top))] pb-3">
         <h1 className="text-[22px] font-bold">전주 칵테일바</h1>
         <p className="mt-1 text-[15px] text-muted">
           전북대 칵테일 동아리 · 대학로 / 객사 / 신시가지

@@ -20,6 +20,22 @@ html {
   background-color: var(--color-ink);
 }
 
+/*
+  노치·다이내믹 아일랜드 대응.
+
+  index.html에 viewport-fit=cover와 status-bar-style=black-translucent가 있다.
+  덕분에 배경이 화면 끝까지 차서 보기 좋지만, 그 대가로 콘텐츠도 노치 아래로
+  파고든다. 밀어내는 것은 각 화면의 몫이고, 그 여백이 env(safe-area-inset-*)다.
+
+  --tabbar-h는 하단 탭바가 실제로 차지하는 높이다.
+  탭바 자신은 홈 인디케이터만큼 더 두꺼워지는데(AppShell의 pb-[env(...)]),
+  본문을 밀어내는 쪽이 68px만 알고 있으면 그 차이만큼 마지막 카드가 가려진다.
+  두 곳이 같은 숫자를 따로 적어두면 반드시 한쪽만 고치는 사고가 난다.
+*/
+:root {
+  --tabbar-h: calc(68px + env(safe-area-inset-bottom));
+}
+
 body {
   margin: 0;
   min-height: 100dvh;

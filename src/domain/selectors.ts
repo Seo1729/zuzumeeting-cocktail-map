@@ -105,7 +105,7 @@ const PRICE_EXCLUDED_BASES = new Set<MenuItem['base']>(['BEER', 'NON_ALC'])
 export function minPrice(bar: Bar): number | null {
   let low = Number.POSITIVE_INFINITY
   for (const item of bar.menu) {
-    if (PRICE_EXCLUDED_BASES.has(item.base)) continue
+    if (PRICE_EXCLUDED_BASES.has(item.base) || item.isStraight) continue
     if (item.price < low) low = item.price
   }
   return low === Number.POSITIVE_INFINITY ? null : low

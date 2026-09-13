@@ -61,6 +61,15 @@ export const MenuItem = z.object({
   price: z.number().int().nonnegative(),
   base: BaseSpirit,
   isSignature: z.boolean().default(false),
+  /*
+    잔술로 파는 위스키·꼬냑처럼 섞지 않고 그대로 내는 것.
+
+    메뉴 목록에는 똑같이 다 보이고, 가격대 필터와 최저가순 정렬에서만 빠진다.
+    부원이 가격으로 바를 고를 때 보려는 것은 칵테일 값이기 때문이다.
+    몰트바처럼 메뉴 절반이 잔술인 곳은 이 표시가 없으면 가격대가 통째로
+    잔술 값으로 정해져 버린다.
+  */
+  isStraight: z.boolean().default(false),
   /** 한 줄 설명. 운영진 코멘트. */
   desc: z.string().default(''),
 })

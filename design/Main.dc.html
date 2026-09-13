@@ -1,0 +1,137 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap');
+    body { margin: 0; }
+    a { color: #e8b45c; }
+    a:hover { color: #f0c479; }
+    .m-scroll::-webkit-scrollbar { display: none; }
+  </style>
+</helmet>
+
+<div style="width: 390px; height: 844px; overflow: hidden; background: #0b0b0f; color: #f2f2f5; font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', sans-serif; font-size: 15px; line-height: 1.55; -webkit-font-smoothing: antialiased;">
+
+  <!-- 헤더: 동아리 이름을 위로 올려 정체성을 먼저 보이고, 제목은 크게 눌러 쓴다. -->
+  <div style="padding: 24px 16px 14px 16px;">
+    <div style="display: flex; align-items: center; gap: 7px;">
+      <div style="width: 3px; height: 13px; border-radius: 2px; background: {{accent}};"></div>
+      <div style="font-size: 15px; font-weight: 600; letter-spacing: 0.06em; color: {{accent}};">전북대 칵테일 동아리</div>
+    </div>
+    <div style="margin-top: 7px; font-size: 27px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.15;">전주 칵테일바</div>
+    <div style="margin-top: 5px; font-size: 15px; color: #a1a1ae;">대학로 · 객사 · 신시가지에서 <span style="color: #d6d6de; font-weight: 600;">11곳</span></div>
+  </div>
+
+  <!-- 검색: 돋보기를 넣어 입력칸이라는 걸 글자 없이도 알게 한다. -->
+  <div style="padding: 0 16px 12px 16px;">
+    <div style="position: relative; display: flex; align-items: center; border-radius: 14px; border: 1px solid #2c2c38; background: #16161d; box-shadow: inset 0 1px 0 rgba(255,255,255,0.03); padding: 0 14px; height: 50px;">
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#7e7e8c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
+        <circle cx="11" cy="11" r="7"></circle>
+        <path d="M20 20l-3.5-3.5"></path>
+      </svg>
+      <div style="margin-left: 10px; font-size: 16px; color: #7e7e8c;">바 이름, 분위기, 한 줄 평</div>
+    </div>
+  </div>
+
+  <!-- 상권 칩: 고른 것만 채우고 나머지는 테두리만 남겨 시선을 뺏지 않는다. -->
+  <div class="m-scroll" style="display: flex; gap: 7px; overflow-x: auto; padding: 0 16px 8px 16px; scrollbar-width: none;">
+    <div style="flex-shrink: 0; display: flex; align-items: center; height: 44px; border-radius: 9999px; border: 1px solid {{accent}}; background: {{accent}}; color: #2a1d06; padding: 0 18px; font-size: 15px; font-weight: 700; white-space: nowrap;">전체</div>
+    <div style="flex-shrink: 0; display: flex; align-items: center; gap: 7px; height: 44px; border-radius: 9999px; border: 1px solid #2c2c38; background: transparent; color: #c4c4ce; padding: 0 16px; font-size: 15px; font-weight: 500; white-space: nowrap;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #e8b45c;"></span>대학로</div>
+    <div style="flex-shrink: 0; display: flex; align-items: center; gap: 7px; height: 44px; border-radius: 9999px; border: 1px solid #2c2c38; background: transparent; color: #c4c4ce; padding: 0 16px; font-size: 15px; font-weight: 500; white-space: nowrap;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #5fc4cd;"></span>객사</div>
+    <div style="flex-shrink: 0; display: flex; align-items: center; gap: 7px; height: 44px; border-radius: 9999px; border: 1px solid #2c2c38; background: transparent; color: #c4c4ce; padding: 0 16px; font-size: 15px; font-weight: 500; white-space: nowrap;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #e79fb8;"></span>신시가지</div>
+  </div>
+
+  <div class="m-scroll" style="display: flex; gap: 7px; overflow-x: auto; padding: 0 16px 10px 16px; scrollbar-width: none;">
+    <div style="flex-shrink: 0; display: flex; align-items: center; height: 44px; border-radius: 9999px; border: 1px solid #2c2c38; background: transparent; color: #c4c4ce; padding: 0 16px; font-size: 15px; font-weight: 500; white-space: nowrap;">입문자 추천만</div>
+    <div style="flex-shrink: 0; display: flex; align-items: center; height: 44px; border-radius: 9999px; border: 1px solid #2c2c38; background: transparent; color: #c4c4ce; padding: 0 16px; font-size: 15px; font-weight: 500; white-space: nowrap;">가격 전체</div>
+    <div style="flex-shrink: 0; display: flex; align-items: center; height: 44px; border-radius: 9999px; border: 1px solid #2c2c38; background: transparent; color: #c4c4ce; padding: 0 16px; font-size: 15px; font-weight: 500; white-space: nowrap;">1.3만원 이하</div>
+  </div>
+
+  <!-- 정렬: 버튼 두 개가 떠 있던 것을 트랙에 묶어 하나의 스위치로 읽히게 한다. -->
+  <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 16px 14px 16px;">
+    <div style="font-size: 15px; color: #a1a1ae;"><span style="color: #f2f2f5; font-weight: 700;">11</span>곳</div>
+    <div style="display: flex; gap: 3px; border-radius: 11px; border: 1px solid #23232d; background: #131319; padding: 3px;">
+      <div style="border-radius: 8px; background: #272733; padding: 8px 13px; font-size: 15px; font-weight: 700; color: #f2f2f5;">이름순</div>
+      <div style="border-radius: 8px; padding: 8px 13px; font-size: 15px; color: #8d8d9b;">최저가순</div>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 11px; padding: 0 16px;">
+
+    <!-- 카드: 위쪽 1px 하이라이트와 옅은 세로 그러데이션으로 판이 떠 보이게 한다. -->
+    <div style="border-radius: 18px; border: 1px solid #2c2c38; background: linear-gradient(180deg, #1a1a23 0%, #16161d 100%); box-shadow: inset 0 1px 0 rgba(255,255,255,0.045), 0 1px 2px rgba(0,0,0,0.4); padding: 15px 16px 16px 16px;">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="width: 7px; height: 7px; border-radius: 50%; background: #e8b45c; flex-shrink: 0;"></span>
+        <div style="font-size: 19px; font-weight: 700; letter-spacing: -0.02em;">아람</div>
+        <div style="font-size: 15px; color: #8d8d9b;">대학로</div>
+        <div style="margin-left: auto; display: flex; align-items: center; gap: 5px; border-radius: 7px; background: rgba(232,180,92,0.13); padding: 4px 9px;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="{{accent}}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.4 5.3 5.6.7-4.2 3.9 1.1 5.6L12 15.8 7.1 18.5l1.1-5.6L4 9l5.6-.7z"></path></svg>
+          <span style="font-size: 15px; font-weight: 600; color: {{accent}};">입문</span>
+        </div>
+      </div>
+
+      <!-- 대표 메뉴: 이름과 값을 양끝으로 벌려 값이 세로로 정렬되게 한다. -->
+      <div style="margin-top: 11px; display: flex; align-items: baseline; gap: 10px;">
+        <div style="display: flex; align-items: baseline; gap: 7px; min-width: 0;">
+          <span style="flex-shrink: 0; border-radius: 5px; background: {{accent}}; color: #2a1d06; padding: 2px 6px; font-size: 15px; font-weight: 700;">시그니처</span>
+          <span style="font-size: 15px; color: #e4e4ea; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">피치 못할 사랑</span>
+        </div>
+        <div style="margin-left: auto; flex-shrink: 0; font-size: 15px; font-weight: 700; color: {{accent}}; font-variant-numeric: tabular-nums;">15,000원</div>
+      </div>
+
+      <div style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px;">
+        <div style="border-radius: 7px; background: #23232e; padding: 4px 9px; font-size: 15px; color: #9c9caa;">클래식 바</div>
+      </div>
+
+      <!-- 한 줄 평은 이 앱의 존재 이유라, 가는 선으로 끊어 따로 읽히게 둔다. -->
+      <div style="margin-top: 13px; padding-top: 12px; border-top: 1px solid #23232e; font-size: 15px; line-height: 1.55; color: #b4b4c0;">구정문을 대표하는 몰트바의 정석</div>
+    </div>
+
+    <div style="border-radius: 18px; border: 1px solid #2c2c38; background: linear-gradient(180deg, #1a1a23 0%, #16161d 100%); box-shadow: inset 0 1px 0 rgba(255,255,255,0.045), 0 1px 2px rgba(0,0,0,0.4); padding: 15px 16px 16px 16px;">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="width: 7px; height: 7px; border-radius: 50%; background: #e8b45c; flex-shrink: 0;"></span>
+        <div style="font-size: 19px; font-weight: 700; letter-spacing: -0.02em;">공백</div>
+        <div style="font-size: 15px; color: #8d8d9b;">대학로</div>
+      </div>
+      <div style="margin-top: 11px; display: flex; align-items: baseline; gap: 10px;">
+        <span style="font-size: 15px; color: #e4e4ea;">파우스트</span>
+        <div style="margin-left: auto; flex-shrink: 0; font-size: 15px; font-weight: 700; color: {{accent}}; font-variant-numeric: tabular-nums;">14,000원</div>
+      </div>
+      <div style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px;">
+        <div style="border-radius: 7px; background: #23232e; padding: 4px 9px; font-size: 15px; color: #9c9caa;">캐쥬얼 바</div>
+      </div>
+      <div style="margin-top: 13px; padding-top: 12px; border-top: 1px solid #23232e; font-size: 15px; line-height: 1.55; color: #b4b4c0;">잠시 쉬어갈 수 있는 [공 백]을 나타낸 캐쥬얼 바</div>
+    </div>
+
+    <!--
+      정보가 없는 바. 지금은 이름 한 줄만 있어 고장난 카드처럼 보인다.
+      비어 있음을 말로 밝히고 카드 자체를 눌러 둔다.
+    -->
+    <div style="border-radius: 18px; border: 1px dashed #26262f; background: #131318; padding: 15px 16px;">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="width: 7px; height: 7px; border-radius: 50%; background: #4a4a57; flex-shrink: 0;"></span>
+        <div style="font-size: 19px; font-weight: 700; letter-spacing: -0.02em; color: #b4b4c0;">그리즐리</div>
+        <div style="font-size: 15px; color: #7e7e8c;">대학로</div>
+        <div style="margin-left: auto; font-size: 15px; color: #6e6e7b;">위치만 등록됨</div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+</x-dc>
+<script data-dc-script data-props='{"accent":{"editor":"color","default":"#e8b45c","options":["#e8b45c","#d9a441","#c9a227","#e0b877"],"section":"Theme"}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { accent: this.props.accent ?? '#e8b45c' };
+  }
+}
+</script>
+</body>
+</html>

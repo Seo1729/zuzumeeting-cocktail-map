@@ -4,7 +4,7 @@ import Chip from '../components/Chip'
 import { ALL_BARS } from '../domain/bars'
 import KakaoMapView from '../map/KakaoMapView'
 import type { MapMarker } from '../map/types'
-import type { Bar } from '../domain/schema'
+import { DISTRICT_DOT, type Bar } from '../domain/schema'
 import {
   DEFAULT_QUERY,
   DISTRICTS,
@@ -34,7 +34,14 @@ export default function MapPage() {
 
   // 마커는 좌표가 바뀔 때만 새로 만든다. 선택 상태는 여기 넣지 않는다.
   const markers = useMemo<MapMarker[]>(
-    () => bars.map((bar) => ({ id: bar.id, name: bar.name, lat: bar.lat, lng: bar.lng })),
+    () =>
+      bars.map((bar) => ({
+        id: bar.id,
+        name: bar.name,
+        lat: bar.lat,
+        lng: bar.lng,
+        dotColor: DISTRICT_DOT[bar.district],
+      })),
     [bars],
   )
 
@@ -93,13 +100,22 @@ export default function MapPage() {
               setSelectedId(null)
               update({ district })
             }}
+            dotColor={DISTRICT_DOT[district]}
           />
         ))}
       </div>
 
+      {/*
+        리스트에서 건 필터가 지도에도 걸려 있다는 알림.
+        깔때기 아이콘을 붙이고 '해제'를 테두리 있는 버튼으로 바꿨다.
+        전에는 맨 글자라 누를 수 있는 것인지 알기 어려웠다.
+      */}
       {otherFilters.length > 0 && (
-        <div className="flex shrink-0 items-center justify-between gap-2 px-4 pb-2">
-          <p className="truncate text-[15px] text-muted">{otherFilters.join(' · ')} 적용 중</p>
+        <div className="flex shrink-0 items-center justify-between gap-2.5 px-4 pb-2.5">
+          <div className="flex min-w-0 items-center gap-[7px]">
+            <FunnelIcon />
+            <p className="truncate text-[15px] text-muted">{otherFilters.join(' · ')} 적용 중</p>
+          </div>
           <button
             type="button"
             onClick={() =>
@@ -109,7 +125,7 @@ export default function MapPage() {
                 priceBand: DEFAULT_QUERY.priceBand,
               })
             }
-            className="shrink-0 text-[15px] text-accent"
+            className="shrink-0 rounded-lg border border-line px-[11px] py-1.5 text-[15px] font-semibold text-text active:bg-surface-2"
           >
             해제
           </button>
@@ -160,7 +176,7 @@ function BottomSheet({ bar, onClose }: { bar: Bar; onClose: () => void }) {
   // 실제로 지도의 z-index를 가두는 것은 KakaoMapView 쪽의 isolate다.
   return (
     <div className="absolute inset-x-0 bottom-0 z-10 p-3">
-      <div className="relative rounded-2xl border border-line bg-surface p-4 shadow-lg shadow-black/40">
+      <div className="relative rounded-[18px] border border-line bg-gradient-to-b from-[#1a1a23] to-surface px-4 pt-[15px] pb-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_8px_26px_rgba(0,0,0,0.6)]">
         <button
           type="button"
           onClick={onClose}
@@ -170,27 +186,75 @@ function BottomSheet({ bar, onClose }: { bar: Bar; onClose: () => void }) {
           ✕
         </button>
 
-        <Link to={`/bar/${bar.id}`} className="block pr-10">
-          <div className="flex items-baseline gap-2">
-            <h2 className="text-[18px] font-bold text-text">{bar.name}</h2>
+        {/* 리스트 카드와 같은 문법으로 맞춘다 — 색점, 값 오른쪽 정렬, 선으로 끊은 한 줄 평. */}
+        <Link to={`/bar/${bar.id}`} className="block">
+          <div className="flex items-center gap-2 pr-9">
+            <span
+              aria-hidden="true"
+              className="h-[7px] w-[7px] shrink-0 rounded-full"
+              style={{ backgroundColor: DISTRICT_DOT[bar.district] }}
+            />
+            <h2 className="text-[19px] font-bold tracking-[-0.02em] text-text">{bar.name}</h2>
             <span className="text-[15px] text-muted">{bar.district}</span>
           </div>
 
           {menu && (
-            <p className="mt-1.5 text-[15px] text-text">
-              {menu.isSignature && <span className="mr-1.5 text-accent">시그니처</span>}
-              {menu.name}
-              <span className="ml-2 font-semibold">{formatPrice(menu.price)}</span>
-            </p>
+            <div className="mt-[11px] flex items-baseline gap-2.5">
+              <div className="flex min-w-0 items-baseline gap-[7px]">
+                {menu.isSignature && (
+                  <span className="shrink-0 rounded-[5px] bg-accent px-1.5 py-0.5 text-[15px] font-bold text-accent-ink">
+                    시그니처
+                  </span>
+                )}
+                <span className="truncate text-[15px] text-text/90">{menu.name}</span>
+              </div>
+              <span className="ml-auto shrink-0 text-[15px] font-bold text-accent tabular-nums">
+                {formatPrice(menu.price)}
+              </span>
+            </div>
           )}
 
           {bar.note && (
-            <p className="mt-2 line-clamp-2 text-[15px] leading-relaxed text-muted">{bar.note}</p>
+            <p className="mt-[13px] line-clamp-2 border-t border-surface-2 pt-3 text-[15px] leading-relaxed text-text/70">
+              {bar.note}
+            </p>
           )}
 
-          <p className="mt-3 text-[15px] font-semibold text-accent">자세히 보기 →</p>
+          <p className="mt-3 flex items-center gap-1 text-[15px] font-semibold text-accent">
+            자세히 보기
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2.4}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="h-3.5 w-3.5"
+            >
+              <path d="M9 5l7 7-7 7" />
+            </svg>
+          </p>
         </Link>
       </div>
     </div>
+  )
+}
+
+/* 필터가 걸려 있다는 표시. 글자만으로는 그냥 안내문으로 읽혀 지나치기 쉽다. */
+function FunnelIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2.2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="h-3.5 w-3.5 shrink-0 text-accent"
+    >
+      <path d="M3 5h18l-7 8v6l-4 2v-8z" />
+    </svg>
   )
 }

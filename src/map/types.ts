@@ -18,6 +18,13 @@ export interface MapMarker {
   name: string
   lat: number
   lng: number
+  /*
+    핀 안쪽 점을 어느 색으로 칠할지 정하는 값.
+
+    상권 이름 자체가 아니라 색을 받는다. 지도 레이어는 '대학로'가 무엇인지 몰라야 하고,
+    상권과 색을 짝지은 표(DISTRICT_DOT)는 도메인 쪽에 한 벌만 둔다.
+  */
+  dotColor: string
 }
 
 /*

@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import SearchInput from '../components/SearchInput'
 import { findBar } from '../domain/bars'
-import { BASE_SPIRIT_LABEL, type Bar, type MenuItem } from '../domain/schema'
+import { BASE_SPIRIT_LABEL, DISTRICT_DOT, type Bar, type MenuItem } from '../domain/schema'
 import { filterMenu, formatPrice, orderedMenu } from '../domain/selectors'
 
 /*
@@ -25,42 +25,60 @@ export default function BarDetailPage() {
     <article className="pb-[calc(104px+env(safe-area-inset-bottom))]">
       <TopBar />
 
-      <header className="px-4 pt-2">
-        <h1 className="text-[24px] leading-tight font-bold">{bar.name}</h1>
-        <p className="mt-1 text-[15px] text-muted">{bar.district}</p>
+      {/* 상권을 이름 위로 올린다. 어느 동네 이야기인지 알고 이름을 읽는 편이 자연스럽다. */}
+      <header className="px-4 pt-1">
+        <div className="flex items-center gap-2.5">
+          <span
+            aria-hidden="true"
+            className="h-2 w-2 shrink-0 rounded-full"
+            style={{ backgroundColor: DISTRICT_DOT[bar.district] }}
+          />
+          <p className="text-[15px] font-semibold tracking-[0.04em] text-muted">{bar.district}</p>
+        </div>
+        <h1 className="mt-1.5 text-[30px] leading-[1.12] font-extrabold tracking-[-0.035em]">
+          {bar.name}
+        </h1>
       </header>
 
       {/* 운영진 코멘트. 카카오맵에 없는 유일한 정보이고 이 앱의 존재 이유라 가장 크게 놓는다. */}
       {bar.note && (
-        <section className="mx-4 mt-4 rounded-2xl border border-accent/35 bg-accent/10 p-4">
-          <p className="text-[15px] font-semibold text-accent">운영진 한 줄 평</p>
-          <p className="mt-2 text-[18px] leading-relaxed font-medium text-text">{bar.note}</p>
+        <section className="mx-4 mt-4 rounded-[18px] border border-accent/30 bg-gradient-to-b from-accent/12 to-accent/5 px-4 pt-[15px] pb-4">
+          <div className="flex items-center gap-1.5">
+            <QuoteIcon />
+            <p className="text-[15px] font-bold tracking-[0.03em] text-accent">운영진 한 줄 평</p>
+          </div>
+          <p className="mt-2 text-[19px] leading-[1.5] font-semibold tracking-[-0.015em] text-text">
+            {bar.note}
+          </p>
         </section>
       )}
 
-      <section className="mt-5 px-4">
-        <InfoRow label="주소" value={bar.address} />
-        <InfoRow label="영업시간" value={bar.hours} />
-        <InfoRow
-          label="휴무일"
-          value={bar.closedDays.length > 0 ? bar.closedDays.join(', ') : ''}
-        />
-      </section>
-
+      {/* 태그를 정보표 위로 올렸다. 어떤 성격의 바인지 먼저 알고 주소를 보는 순서가 맞다. */}
       {(bar.beginnerFriendly || bar.tags.length > 0) && (
-        <ul className="mt-4 flex flex-wrap gap-1.5 px-4">
+        <ul className="mt-3.5 flex flex-wrap gap-1.5 px-4">
           {bar.beginnerFriendly && (
-            <li className="rounded-md bg-accent/15 px-2.5 py-1.5 text-[15px] text-accent">
+            <li className="flex items-center gap-[5px] rounded-lg bg-accent/15 px-2.5 py-1.5 text-[15px] font-semibold text-accent">
+              <StarIcon />
               입문자 추천
             </li>
           )}
           {bar.tags.map((tag) => (
-            <li key={tag} className="rounded-md bg-surface-2 px-2.5 py-1.5 text-[15px] text-muted">
+            <li key={tag} className="rounded-lg bg-surface-2 px-2.5 py-1.5 text-[15px] text-muted">
               {tag}
             </li>
           ))}
         </ul>
       )}
+
+      {/* 주소·시간·휴무일을 한 덩어리 판으로 묶는다. 전에는 줄만 그어져 배경에 흩어져 있었다. */}
+      <section className="mx-4 mt-4 rounded-2xl border border-surface-2 bg-ink/50 px-3.5 py-1">
+        <InfoRow label="주소" value={bar.address} />
+        <InfoRow label="영업시간" value={bar.hours} numeric />
+        <InfoRow
+          label="휴무일"
+          value={bar.closedDays.length > 0 ? bar.closedDays.join(', ') : ''}
+        />
+      </section>
 
       <MenuSection bar={bar} />
 
@@ -101,13 +119,24 @@ function TopBar() {
   )
 }
 
-function InfoRow({ label, value }: { label: string; value: string }) {
+function InfoRow({
+  label,
+  value,
+  numeric = false,
+}: {
+  label: string
+  value: string
+  /** 영업시간처럼 숫자가 주인 값. 자릿수가 흔들리지 않게 고정폭 숫자로 쓴다. */
+  numeric?: boolean
+}) {
   // 값이 비어 있으면 줄 자체를 감춘다. "정보 없음"을 굳이 보여줄 이유가 없다.
   if (!value) return null
   return (
-    <div className="flex gap-3 border-b border-line py-3 last:border-b-0">
-      <span className="w-[68px] shrink-0 text-[15px] text-muted">{label}</span>
-      <span className="text-[15px] text-text">{value}</span>
+    <div className="flex gap-3 border-b border-surface-2 py-[11px] last:border-b-0">
+      <span className="w-[62px] shrink-0 text-[15px] text-muted">{label}</span>
+      <span className={['text-[15px] text-text/90', numeric ? 'tabular-nums' : ''].join(' ')}>
+        {value}
+      </span>
     </div>
   )
 }
@@ -172,21 +201,33 @@ function MenuSection({ bar }: { bar: Bar }) {
 
 function MenuRow({ item }: { item: MenuItem }) {
   return (
-    <li className="border-b border-line py-3 last:border-b-0">
-      <div className="flex items-baseline justify-between gap-3">
-        <p className="text-[16px] font-medium text-text">
+    <li className="flex items-baseline gap-2.5 border-b border-surface-2 py-[13px] last:border-b-0">
+      <div className="min-w-0">
+        <p className="text-[16px] font-semibold text-text">
           {item.isSignature && (
-            <span className="mr-1.5 rounded bg-accent px-1.5 py-0.5 text-[15px] font-semibold text-accent-ink">
+            <span className="mr-1.5 rounded-[5px] bg-accent px-1.5 py-0.5 text-[15px] font-bold text-accent-ink">
               시그니처
             </span>
           )}
           {item.name}
         </p>
-        <p className="shrink-0 text-[16px] font-semibold text-text">{formatPrice(item.price)}</p>
+        <p className="mt-1 text-[15px] text-muted">
+          {BASE_SPIRIT_LABEL[item.base]}
+          {item.desc && ` · ${item.desc}`}
+        </p>
       </div>
-      <p className="mt-1 text-[15px] text-muted">
-        {BASE_SPIRIT_LABEL[item.base]}
-        {item.desc && ` · ${item.desc}`}
+      {/*
+        값은 오른쪽 끝에 고정폭 숫자로. 108개가 쌓이는 화면이라
+        자릿수가 흔들리면 세로로 훑으며 비교할 수가 없다.
+        시그니처만 금색 — 전부 금색이면 강조가 아니라 배경이 된다.
+      */}
+      <p
+        className={[
+          'ml-auto shrink-0 text-[16px] font-bold tabular-nums',
+          item.isSignature ? 'text-accent' : 'text-text/90',
+        ].join(' ')}
+      >
+        {formatPrice(item.price)}
       </p>
     </li>
   )
@@ -218,16 +259,18 @@ function ActionBar({ bar }: { bar: Bar }) {
           href={kakaoUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex-1 rounded-xl bg-accent py-3.5 text-center text-[16px] font-bold whitespace-nowrap text-accent-ink active:opacity-80"
+          className="flex h-13 flex-1 items-center justify-center gap-[7px] rounded-[14px] bg-accent text-[16px] font-bold whitespace-nowrap text-accent-ink active:opacity-80"
         >
+          <PinIcon />
           카카오맵 길찾기
         </a>
         <a
           href={naverUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex-1 rounded-xl border border-line py-3.5 text-center text-[16px] font-semibold whitespace-nowrap text-text active:bg-surface-2"
+          className="flex h-13 flex-1 items-center justify-center gap-[7px] rounded-[14px] border border-line bg-surface-2/60 text-[16px] font-semibold whitespace-nowrap text-text active:bg-surface-2"
         >
+          <PinIcon />
           네이버 길찾기
         </a>
         {bar.instagram && (
@@ -242,6 +285,51 @@ function ActionBar({ bar }: { bar: Bar }) {
         )}
       </div>
     </div>
+  )
+}
+
+/* 아이콘은 전부 선으로 그린 SVG다. 이모지는 기기마다 모양이 달라 쓰지 않는다. */
+
+function QuoteIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor" className="h-[13px] w-[13px]">
+      <path d="M9.5 5.5C6.4 6.9 4.5 9.6 4.5 12.8v5.7h6.4v-6.4H7.7c0-1.9 1-3.4 2.9-4.3zm9.9 0c-3.1 1.4-5 4.1-5 7.3v5.7h6.4v-6.4h-3.2c0-1.9 1-3.4 2.9-4.3z" />
+    </svg>
+  )
+}
+
+function StarIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2.4}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="h-3 w-3"
+    >
+      <path d="M12 3l2.4 5.3 5.6.7-4.2 3.9 1.1 5.6L12 15.8 7.1 18.5l1.1-5.6L4 9l5.6-.7z" />
+    </svg>
+  )
+}
+
+function PinIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2.3}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="h-[17px] w-[17px]"
+    >
+      <path d="M12 21s7-5.7 7-11a7 7 0 10-14 0c0 5.3 7 11 7 11z" />
+      <circle cx="12" cy="10" r="2.4" />
+    </svg>
   )
 }
 

@@ -50,9 +50,18 @@ function pinSvg(fill: string, stroke: string, dot: string): string {
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
 }
 
-// 다크 배경 위에서 읽히도록 직접 그린 핀. 선택된 것만 accent 색으로 띄운다.
-const PIN_DEFAULT = pinSvg('#1f1f29', '#a1a1ae', '#a1a1ae')
+/*
+  다크 배경 위에서 읽히도록 직접 그린 핀. 선택된 것만 accent 색으로 띄운다.
+
+  안 고른 핀은 몸통을 어둡게 두고 안쪽 점만 상권 색으로 칠한다. 리스트 카드와 칩이
+  쓰는 색점과 같은 규칙이라, 지도에서 상권을 눈으로 묶어 볼 수 있다.
+  몸통까지 상권 색으로 칠하면 핀 열한 개가 색색으로 튀어 지도를 덮는다.
+*/
 const PIN_SELECTED = pinSvg('#e8b45c', '#e8b45c', '#2a1d06')
+
+function basePin(dotColor: string): string {
+  return pinSvg('#1f1f29', '#8b8b99', dotColor)
+}
 
 /*
   사용자 위치는 물방울 핀이 아니라 점으로 그린다.
@@ -80,9 +89,11 @@ export default function KakaoMapView({
   const { status, maps, error } = useKakaoLoader()
   const containerRef = useRef<HTMLDivElement | null>(null)
   const mapRef = useRef<KakaoMap | null>(null)
-  const markerRefs = useRef<Map<string, KakaoMarker>>(new Map())
+  // 선택이 풀릴 때 어떤 색 핀으로 되돌릴지 알아야 해서 색을 같이 들고 있는다.
+  const markerRefs = useRef<Map<string, { marker: KakaoMarker; dotColor: string }>>(new Map())
   const imagesRef = useRef<{
-    base: KakaoMarkerImage
+    /** 상권 색마다 핀 이미지를 한 번만 만들어 돌려쓴다. */
+    base: (dotColor: string) => KakaoMarkerImage
     selected: KakaoMarkerImage
     user: KakaoMarkerImage
   } | null>(null)
@@ -103,10 +114,18 @@ export default function KakaoMapView({
     })
     mapRef.current = map
 
+    const baseCache = new globalThis.Map<string, KakaoMarkerImage>()
+
     imagesRef.current = {
-      base: new maps.MarkerImage(PIN_DEFAULT, new maps.Size(28, 36), {
-        offset: new maps.Point(14, 36),
-      }),
+      base: (dotColor) => {
+        const cached = baseCache.get(dotColor)
+        if (cached) return cached
+        const image = new maps.MarkerImage(basePin(dotColor), new maps.Size(28, 36), {
+          offset: new maps.Point(14, 36),
+        })
+        baseCache.set(dotColor, image)
+        return image
+      },
       selected: new maps.MarkerImage(PIN_SELECTED, new maps.Size(28, 36), {
         offset: new maps.Point(14, 36),
       }),
@@ -135,7 +154,7 @@ export default function KakaoMapView({
     const images = imagesRef.current
     if (!maps || !map || !images) return
 
-    const created = new globalThis.Map<string, KakaoMarker>()
+    const created = new globalThis.Map<string, { marker: KakaoMarker; dotColor: string }>()
     const bounds = new maps.LatLngBounds()
 
     for (const item of markers) {
@@ -143,11 +162,11 @@ export default function KakaoMapView({
       const marker = new maps.Marker({
         position,
         title: item.name,
-        image: images.base,
+        image: images.base(item.dotColor),
       })
       marker.setMap(map)
       maps.event.addListener(marker, 'click', () => onSelectRef.current(item.id))
-      created.set(item.id, marker)
+      created.set(item.id, { marker, dotColor: item.dotColor })
       bounds.extend(position)
     }
 
@@ -164,7 +183,7 @@ export default function KakaoMapView({
 
     return () => {
       // 지도에서 떼어내지 않으면 필터를 바꿀 때마다 마커가 쌓인다.
-      for (const marker of created.values()) marker.setMap(null)
+      for (const entry of created.values()) entry.marker.setMap(null)
       markerRefs.current = new globalThis.Map()
     }
   }, [maps, markers])
@@ -174,15 +193,15 @@ export default function KakaoMapView({
     const images = imagesRef.current
     if (!images) return
 
-    for (const [id, marker] of markerRefs.current) {
+    for (const [id, entry] of markerRefs.current) {
       const isSelected = id === selectedId
-      marker.setImage(isSelected ? images.selected : images.base)
-      marker.setZIndex(isSelected ? 10 : 1)
+      entry.marker.setImage(isSelected ? images.selected : images.base(entry.dotColor))
+      entry.marker.setZIndex(isSelected ? 10 : 1)
     }
 
     const map = mapRef.current
     const selected = selectedId === null ? undefined : markerRefs.current.get(selectedId)
-    if (map && selected) map.panTo(selected.getPosition())
+    if (map && selected) map.panTo(selected.marker.getPosition())
   }, [selectedId, markers])
 
   /*

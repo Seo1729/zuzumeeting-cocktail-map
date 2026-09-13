@@ -19,6 +19,23 @@ interface SearchInputProps {
 export default function SearchInput({ value, onChange, placeholder, label }: SearchInputProps) {
   return (
     <div className="relative">
+      {/*
+        돋보기. 글자를 읽기 전에 여기가 입력칸이라는 걸 알리는 유일한 표시다.
+        aria-hidden — 옆의 input이 이미 aria-label로 이름을 갖고 있어 두 번 읽을 이유가 없다.
+      */}
+      <svg
+        aria-hidden="true"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={2}
+        strokeLinecap="round"
+        className="pointer-events-none absolute top-1/2 left-4 h-[19px] w-[19px] -translate-y-1/2 text-muted"
+      >
+        <circle cx="11" cy="11" r="7" />
+        <path d="M20 20l-3.5-3.5" />
+      </svg>
+
       <input
         type="text"
         inputMode="search"
@@ -27,8 +44,8 @@ export default function SearchInput({ value, onChange, placeholder, label }: Sea
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
-        // pr-12: ✕ 버튼이 글자 위에 겹치지 않도록 오른쪽을 비워둔다.
-        className="w-full rounded-xl border border-line bg-surface py-3 pr-12 pl-4 text-[16px] text-text placeholder:text-muted focus:border-accent focus:outline-none"
+        // pl-11: 돋보기 자리. pr-12: ✕ 버튼이 글자 위에 겹치지 않도록.
+        className="w-full rounded-[14px] border border-line bg-surface py-3.5 pr-12 pl-11 text-[16px] text-text shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] placeholder:text-muted focus:border-accent focus:outline-none"
       />
 
       {/*

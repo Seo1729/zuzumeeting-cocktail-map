@@ -3,6 +3,7 @@ import BarCard from '../components/BarCard'
 import Chip from '../components/Chip'
 import SearchInput from '../components/SearchInput'
 import { ALL_BARS } from '../domain/bars'
+import { DISTRICT_DOT } from '../domain/schema'
 import {
   DEFAULT_QUERY,
   DISTRICTS,
@@ -26,11 +27,25 @@ export default function ListPage() {
 
   return (
     <div>
-      {/* pt는 노치 높이(기기마다 다름) 위에 24px을 더 얹은 값이다. */}
-      <header className="px-4 pt-[calc(24px+env(safe-area-inset-top))] pb-3">
-        <h1 className="text-[22px] font-bold">전주 칵테일바</h1>
+      {/*
+        pt는 노치 높이(기기마다 다름) 위에 24px을 더 얹은 값이다.
+
+        동아리 이름을 제목 위로 올렸다. 전에는 제목 아래 한 줄에 동아리 이름과 상권이
+        함께 묻혀 있었는데, 부원에게 처음 보이는 화면이라 "누가 만든 것인가"가 먼저 와야 한다.
+      */}
+      <header className="px-4 pt-[calc(24px+env(safe-area-inset-top))] pb-3.5">
+        <div className="flex items-center gap-[7px]">
+          <span aria-hidden="true" className="h-[13px] w-[3px] rounded-sm bg-accent" />
+          <p className="text-[15px] font-semibold tracking-[0.06em] text-accent">
+            전북대 칵테일 동아리
+          </p>
+        </div>
+        <h1 className="mt-[7px] text-[27px] leading-[1.15] font-extrabold tracking-[-0.03em]">
+          전주 칵테일바
+        </h1>
         <p className="mt-1 text-[15px] text-muted">
-          전북대 칵테일 동아리 · 대학로 / 객사 / 신시가지
+          대학로 · 객사 · 신시가지에서{' '}
+          <span className="font-semibold text-text/85">{ALL_BARS.length}곳</span>
         </p>
       </header>
 
@@ -60,6 +75,7 @@ export default function ListPage() {
             label={district}
             selected={query.district === district}
             onClick={() => update({ district })}
+            dotColor={DISTRICT_DOT[district]}
           />
         ))}
       </div>
@@ -81,10 +97,17 @@ export default function ListPage() {
         ))}
       </div>
 
-      {/* 결과 수 + 정렬 */}
-      <div className="flex items-center justify-between px-4 py-3">
-        <p className="text-[15px] text-muted">{bars.length}곳</p>
-        <div className="flex gap-1.5">
+      {/*
+        결과 수 + 정렬.
+
+        정렬은 버튼 두 개가 그냥 떠 있었다. 고른 쪽만 배경이 생기니 안 고른 쪽은
+        누를 수 있는 것인지조차 애매했다. 둘을 한 트랙에 담아 하나의 스위치로 읽히게 한다.
+      */}
+      <div className="flex items-center justify-between px-4 pt-1.5 pb-3.5">
+        <p className="text-[15px] text-muted">
+          <span className="font-bold text-text">{bars.length}</span>곳
+        </p>
+        <div className="flex gap-[3px] rounded-[11px] border border-surface-2 bg-ink/60 p-[3px]">
           {SORT_KEYS.map((key) => (
             <button
               key={key}
@@ -93,7 +116,7 @@ export default function ListPage() {
               aria-pressed={query.sort === key}
               className={[
                 'rounded-lg px-3 py-2 text-[15px] transition-colors',
-                query.sort === key ? 'bg-surface-2 font-semibold text-text' : 'text-muted',
+                query.sort === key ? 'bg-surface-2 font-bold text-text' : 'text-muted',
               ].join(' ')}
             >
               {SORT_LABEL[key]}

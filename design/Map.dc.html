@@ -1,0 +1,123 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap');
+    body { margin: 0; }
+    a { color: #e8b45c; }
+    a:hover { color: #f0c479; }
+    .mp-scroll::-webkit-scrollbar { display: none; }
+  </style>
+</helmet>
+
+<div style="position: relative; width: 390px; height: 844px; overflow: hidden; background: #0b0b0f; color: #f2f2f5; font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', sans-serif; font-size: 15px; line-height: 1.55; -webkit-font-smoothing: antialiased;">
+
+  <div class="mp-scroll" style="display: flex; gap: 7px; overflow-x: auto; padding: 16px 16px 8px 16px; scrollbar-width: none;">
+    <div style="flex-shrink: 0; display: flex; align-items: center; height: 44px; border-radius: 9999px; border: 1px solid {{accent}}; background: {{accent}}; color: #2a1d06; padding: 0 18px; font-size: 15px; font-weight: 700; white-space: nowrap;">전체</div>
+    <div style="flex-shrink: 0; display: flex; align-items: center; gap: 7px; height: 44px; border-radius: 9999px; border: 1px solid #2c2c38; color: #c4c4ce; padding: 0 16px; font-size: 15px; font-weight: 500; white-space: nowrap;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #e8b45c;"></span>대학로</div>
+    <div style="flex-shrink: 0; display: flex; align-items: center; gap: 7px; height: 44px; border-radius: 9999px; border: 1px solid #2c2c38; color: #c4c4ce; padding: 0 16px; font-size: 15px; font-weight: 500; white-space: nowrap;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #5fc4cd;"></span>객사</div>
+    <div style="flex-shrink: 0; display: flex; align-items: center; gap: 7px; height: 44px; border-radius: 9999px; border: 1px solid #2c2c38; color: #c4c4ce; padding: 0 16px; font-size: 15px; font-weight: 500; white-space: nowrap;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #e79fb8;"></span>신시가지</div>
+  </div>
+
+  <!-- 리스트에서 건 검색이 지도에도 걸려 있다는 표시. 해제를 버튼답게 만든다. -->
+  <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 0 16px 10px 16px;">
+    <div style="display: flex; align-items: center; gap: 7px; min-width: 0;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="{{accent}}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="M3 5h18l-7 8v6l-4 2v-8z"></path></svg>
+      <div style="font-size: 15px; color: #a1a1ae; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">'진' 검색 · 입문자 추천만</div>
+    </div>
+    <div style="flex-shrink: 0; border-radius: 8px; border: 1px solid #363644; padding: 6px 11px; font-size: 15px; font-weight: 600; color: #e4e4ea;">해제</div>
+  </div>
+
+  <!-- 지도 영역. 실제로는 카카오맵이 들어가는 자리라, 여기서는 분위기만 잡는다. -->
+  <div style="position: relative; height: 601px; background: #10131a; overflow: hidden;">
+    <div style="position: absolute; inset: 0; background:
+      radial-gradient(closest-side at 32% 38%, rgba(232,180,92,0.10), transparent),
+      radial-gradient(closest-side at 72% 66%, rgba(95,196,205,0.08), transparent);"></div>
+    <div style="position: absolute; inset: 0; opacity: 0.5; background-image:
+      linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
+      background-size: 58px 58px;"></div>
+    <div style="position: absolute; left: -20px; top: 210px; width: 440px; height: 30px; transform: rotate(-8deg); background: rgba(255,255,255,0.045);"></div>
+    <div style="position: absolute; left: 150px; top: -30px; width: 26px; height: 700px; transform: rotate(6deg); background: rgba(255,255,255,0.035);"></div>
+
+    <!-- 핀: 고른 것만 크게 세우고 값을 같이 보여, 누르기 전에도 비교가 되게 한다. -->
+    <div style="position: absolute; left: 60px; top: 120px; display: flex; align-items: center; gap: 6px; border-radius: 9999px; border: 1px solid #2c2c38; background: rgba(19,19,24,0.94); padding: 6px 11px 6px 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.5);">
+      <span style="width: 7px; height: 7px; border-radius: 50%; background: #e8b45c;"></span>
+      <span style="font-size: 15px; font-weight: 600; color: #e4e4ea;">공백</span>
+    </div>
+
+    <div style="position: absolute; left: 228px; top: 186px; display: flex; align-items: center; gap: 6px; border-radius: 9999px; border: 1px solid #2c2c38; background: rgba(19,19,24,0.94); padding: 6px 11px 6px 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.5);">
+      <span style="width: 7px; height: 7px; border-radius: 50%; background: #e8b45c;"></span>
+      <span style="font-size: 15px; font-weight: 600; color: #e4e4ea;">잉크</span>
+    </div>
+
+    <div style="position: absolute; left: 118px; top: 262px; display: flex; flex-direction: column; align-items: center;">
+      <div style="display: flex; align-items: center; border-radius: 9999px; background: {{accent}}; color: #2a1d06; padding: 8px 15px; box-shadow: 0 5px 16px rgba(232,180,92,0.35);">
+        <span style="font-size: 16px; font-weight: 800;">아람</span>
+      </div>
+      <div style="width: 2px; height: 13px; background: {{accent}};"></div>
+      <div style="width: 9px; height: 9px; border-radius: 50%; background: {{accent}}; box-shadow: 0 0 0 4px rgba(232,180,92,0.22);"></div>
+    </div>
+
+    <div style="position: absolute; left: 258px; top: 340px; display: flex; align-items: center; gap: 6px; border-radius: 9999px; border: 1px solid #2c2c38; background: rgba(19,19,24,0.94); padding: 6px 11px 6px 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.5);">
+      <span style="width: 7px; height: 7px; border-radius: 50%; background: #5fc4cd;"></span>
+      <span style="font-size: 15px; font-weight: 600; color: #e4e4ea;">오브</span>
+    </div>
+
+    <!-- 내 위치는 우상단. 마커를 누르면 바텀시트가 아래를 덮기 때문이다. -->
+    <div style="position: absolute; top: 12px; right: 12px; display: flex; align-items: center; gap: 7px; height: 44px; border-radius: 9999px; border: 1px solid #363644; background: rgba(22,22,29,0.96); backdrop-filter: blur(10px); padding: 0 15px; font-size: 15px; font-weight: 600; color: #f2f2f5; box-shadow: 0 3px 10px rgba(0,0,0,0.45);">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f2f2f5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"></circle><path d="M12 2.6v3.2M12 18.2v3.2M2.6 12h3.2M18.2 12h3.2"></path></svg>
+      내 위치
+    </div>
+
+    <!-- 마커를 누르면 올라오는 요약 카드. 리스트 카드와 같은 문법으로 맞춘다. -->
+    <div style="position: absolute; left: 12px; right: 12px; bottom: 12px; border-radius: 18px; border: 1px solid #2c2c38; background: linear-gradient(180deg, #1a1a23 0%, #16161d 100%); box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 8px 26px rgba(0,0,0,0.6); padding: 15px 16px 16px 16px;">
+      <div style="position: absolute; top: 11px; right: 11px; display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 9px; color: #8d8d9b;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8d8d9b" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px; padding-right: 34px;">
+        <span style="width: 7px; height: 7px; border-radius: 50%; background: #e8b45c; flex-shrink: 0;"></span>
+        <div style="font-size: 19px; font-weight: 700; letter-spacing: -0.02em;">아람</div>
+        <div style="font-size: 15px; color: #8d8d9b;">대학로</div>
+      </div>
+      <div style="margin-top: 11px; display: flex; align-items: baseline; gap: 10px;">
+        <div style="display: flex; align-items: baseline; gap: 7px; min-width: 0;">
+          <span style="flex-shrink: 0; border-radius: 5px; background: {{accent}}; color: #2a1d06; padding: 2px 6px; font-size: 15px; font-weight: 700;">시그니처</span>
+          <span style="font-size: 15px; color: #e4e4ea;">피치 못할 사랑</span>
+        </div>
+        <div style="margin-left: auto; flex-shrink: 0; font-size: 15px; font-weight: 700; color: {{accent}}; font-variant-numeric: tabular-nums;">15,000원</div>
+      </div>
+      <div style="margin-top: 13px; padding-top: 12px; border-top: 1px solid #23232e; font-size: 15px; color: #b4b4c0;">구정문을 대표하는 몰트바의 정석</div>
+    </div>
+  </div>
+
+  <!-- 하단 탭. 고른 쪽을 색만이 아니라 위쪽 막대로도 못박는다. -->
+  <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 68px; border-top: 1px solid #2c2c38; background: rgba(22,22,29,0.97); backdrop-filter: blur(12px); display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));">
+    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: #8d8d9b;">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#8d8d9b" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"></path></svg>
+      <span style="font-size: 15px; font-weight: 600;">리스트</span>
+    </div>
+    <div style="position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: {{accent}};">
+      <div style="position: absolute; top: 0; width: 30px; height: 2px; border-radius: 0 0 2px 2px; background: {{accent}};"></div>
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="{{accent}}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3.5L3.5 6v14.5L9 18l6 2.5 5.5-2.5V3.5L15 6z"></path><path d="M9 3.5V18M15 6v14.5"></path></svg>
+      <span style="font-size: 15px; font-weight: 700;">지도</span>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+<script data-dc-script data-props='{"accent":{"editor":"color","default":"#e8b45c","options":["#e8b45c","#d9a441","#c9a227","#e0b877"],"section":"Theme"}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { accent: this.props.accent ?? '#e8b45c' };
+  }
+}
+</script>
+</body>
+</html>

@@ -196,16 +196,39 @@ function ActionBar({ bar }: { bar: Bar }) {
   // 카카오맵 길찾기 딥링크. 가게 이름에 쉼표나 공백이 있어도 깨지지 않게 인코딩한다.
   const kakaoUrl = `https://map.kakao.com/link/to/${encodeURIComponent(bar.name)},${bar.lat},${bar.lng}`
 
+  /*
+    네이버 지도 길찾기.
+
+    좌표 순서가 카카오와 반대다. 카카오는 lat,lng인데 네이버는 lng,lat로 받는다.
+    뒤집어 넣으면 엉뚱한 곳을 찍고도 주소가 멀쩡해 보여서 알아채기 어렵다.
+
+    앞의 '-'는 출발지를 비워 현재 위치를 쓰게 하는 자리다.
+
+    네이버는 카카오의 link API 같은 공식 링크 규격을 내놓지 않았다. 이 주소는
+    문서화된 것이 아니라 실제 지도 페이지가 쓰는 형식이라, 네이버가 구조를 바꾸면
+    예고 없이 깨질 수 있다. 그래서 카카오 버튼을 남겨뒀다.
+  */
+  const naverUrl = `https://map.naver.com/p/directions/-/${bar.lng},${bar.lat},${encodeURIComponent(bar.name)}/-/transit`
+
   return (
     <div className="fixed bottom-0 z-30 w-full max-w-[480px] border-t border-line bg-surface/95 p-3 pb-[calc(12px+env(safe-area-inset-bottom))] backdrop-blur">
+      {/* whitespace-nowrap: 줄바꿈이 생기면 바가 두꺼워져 본문 아래가 가린다. */}
       <div className="flex gap-2">
         <a
           href={kakaoUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex-1 rounded-xl bg-accent py-3.5 text-center text-[16px] font-bold text-accent-ink active:opacity-80"
+          className="flex-1 rounded-xl bg-accent py-3.5 text-center text-[16px] font-bold whitespace-nowrap text-accent-ink active:opacity-80"
         >
-          카카오맵으로 길찾기
+          카카오맵 길찾기
+        </a>
+        <a
+          href={naverUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex-1 rounded-xl border border-line py-3.5 text-center text-[16px] font-semibold whitespace-nowrap text-text active:bg-surface-2"
+        >
+          네이버 길찾기
         </a>
         {bar.instagram && (
           <a

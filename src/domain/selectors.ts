@@ -1,11 +1,17 @@
-import { BASE_SPIRIT_LABEL, JEONJU_BOUNDS, type Bar, type District, type MenuItem } from './schema'
+import { BASE_SPIRIT_LABEL, District, JEONJU_BOUNDS, type Bar, type MenuItem } from './schema'
 
 /*
   필터/정렬/파생값 계산. 순수 함수만 둔다 — React를 import하지 않는다.
   화면이 바뀌어도 이 파일은 그대로 쓸 수 있어야 한다.
 */
 
-export const DISTRICTS = ['대학로', '객사', '신시가지'] as const
+/*
+  칩에 그릴 상권 목록. 값을 여기 다시 적지 않고 스키마에서 가져온다.
+  예전에는 같은 배열을 schema.ts와 여기 두 곳에 적어뒀는데, 상권을 하나 추가할 때
+  한쪽만 고치면 스키마는 통과하는데 칩은 안 생기는 식으로 조용히 어긋난다.
+  순서도 스키마가 정한 순서를 그대로 따르므로 '기타'가 항상 맨 뒤에 온다.
+*/
+export const DISTRICTS = District.options
 
 /*
   좌표가 전주 안인지.

@@ -43,8 +43,13 @@ export default function ListPage() {
         <h1 className="mt-[7px] text-[27px] leading-[1.15] font-extrabold tracking-[-0.03em]">
           전주 칵테일바
         </h1>
+        {/*
+          예전에는 상권 이름 셋을 여기 적어뒀는데, 상권이 늘 때마다 같이 고쳐야 했고
+          실제로 '기타'를 추가할 때 어긋났다. 바로 아래 칩 줄이 이미 상권 목록이라
+          같은 정보를 두 번 보여줄 이유도 없다.
+        */}
         <p className="mt-1 text-[15px] text-muted">
-          대학로 · 객사 · 신시가지에서{' '}
+          전주 시내{' '}
           <span className="font-semibold text-text/85">{ALL_BARS.length}곳</span>
         </p>
       </header>

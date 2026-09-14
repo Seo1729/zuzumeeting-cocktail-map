@@ -16,7 +16,7 @@ export default function BarCard({ bar }: { bar: Bar }) {
     말로 밝히고 테두리를 점선으로 바꿔, 채워진 카드와 한눈에 구분되게 한다.
     누르면 주소와 길찾기는 나오므로 링크는 그대로 살려둔다.
   */
-  const isStub = !bar.note && !menu && bar.tags.length === 0
+  const isStub = !bar.note && !menu && bar.tags.length === 0 && !bar.discount
 
   if (isStub) {
     return (
@@ -50,11 +50,26 @@ export default function BarCard({ bar }: { bar: Bar }) {
         <h2 className="text-[19px] font-bold tracking-[-0.02em] text-text">{bar.name}</h2>
         <span className="text-[15px] text-muted">{bar.district}</span>
 
-        {bar.beginnerFriendly && (
-          <span className="ml-auto flex shrink-0 items-center gap-[5px] rounded-[7px] bg-accent/15 px-2.5 py-1 text-[15px] font-semibold text-accent">
-            <StarIcon />
-            입문
-          </span>
+        {/*
+          카드에는 짧은 "할인" 배지만 둔다. bar.discount 원문("부원 인증 시
+          일행 전원 7% 할인")은 이름·상권과 한 줄에 넣기엔 길고, 조건이 뭔지는
+          어차피 들어가서 봐야 한다. 자세한 문구는 상세 화면에서 보여준다.
+        */}
+        {(bar.discount || bar.beginnerFriendly) && (
+          <div className="ml-auto flex shrink-0 items-center gap-1.5">
+            {bar.discount && (
+              <span className="flex items-center gap-1 rounded-[7px] bg-discount/15 px-2.5 py-1 text-[15px] font-bold text-discount">
+                <DiscountIcon />
+                할인
+              </span>
+            )}
+            {bar.beginnerFriendly && (
+              <span className="flex items-center gap-[5px] rounded-[7px] bg-accent/15 px-2.5 py-1 text-[15px] font-semibold text-accent">
+                <StarIcon />
+                입문
+              </span>
+            )}
+          </div>
         )}
       </div>
 
@@ -96,6 +111,25 @@ export default function BarCard({ bar }: { bar: Bar }) {
         </p>
       )}
     </Link>
+  )
+}
+
+/* 퍼센트 기호. "%"만큼 할인이라는 뜻을 설명 없이 전하는 모양이 없다. */
+function DiscountIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2.6}
+      strokeLinecap="round"
+      className="h-3 w-3"
+    >
+      <line x1="19" y1="5" x2="5" y2="19" />
+      <circle cx="6.5" cy="6.5" r="2.5" />
+      <circle cx="17.5" cy="17.5" r="2.5" />
+    </svg>
   )
 }
 

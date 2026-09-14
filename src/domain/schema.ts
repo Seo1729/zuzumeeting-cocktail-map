@@ -128,6 +128,13 @@ export const Bar = z.object({
   note: z.string().default(''),
   menu: z.array(MenuItem).default([]),
   instagram: z.url().nullable().default(null),
+  /*
+    동아리 제휴 할인. 있는 바가 지금은 공백 하나뿐이지만, 특정 바 이름을 코드에
+    박아넣지 않고 데이터 필드로 둔다 — 나중에 다른 바가 제휴를 맺어도 bars.json만
+    고치면 되고, 이 필드가 정말 하나뿐이라는 사실이 코드 어딘가에 굳어지지 않는다.
+    "부원 인증 시 일행 전원 7% 할인"처럼 사람이 읽는 문장 그대로 넣는다.
+  */
+  discount: z.string().nullable().default(null),
   /** "2026-09" — UI에 반드시 노출한다. */
   dataAsOf: z.string(),
 })

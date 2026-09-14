@@ -40,6 +40,30 @@ export default function BarDetailPage() {
         </h1>
       </header>
 
+      {/*
+        동아리 제휴 할인. note보다 위에 둔다 — note는 "이 바가 어떤 곳인지"를
+        전하는 이 앱의 존재 이유지만, 할인은 "지금 당장 이득이 되는 정보"라
+        읽는 순서에서 먼저 걸려야 한다. 다만 note만큼 크게는 두지 않는다 —
+        note를 밀어내면 정작 이 앱의 핵심이 뒷전으로 밀린 것처럼 보인다.
+      */}
+      {bar.discount && (
+        <div className="mx-4 mt-4 flex items-start gap-2.5 rounded-xl border border-discount/40 bg-discount/12 px-3.5 py-3">
+          {/*
+            아이콘에 mt-px: 텍스트가 두 줄로 접히면 items-center 기준으로는
+            아이콘이 블록 한가운데로 내려가 첫 줄과 어긋나 보인다. items-start로
+            위에 맞추고 살짝만 내려 글자 첫 줄과 눈높이를 맞춘다.
+          */}
+          <span className="mt-px shrink-0">
+            <DiscountIcon />
+          </span>
+          {/* min-w-0: flex 항목은 기본적으로 내용 너비 아래로 줄어들지 않아, 이게
+              없으면 문장이 줄바꿈 대신 카드 밖으로 잘려 나간다. */}
+          <p className="min-w-0 text-[15px] leading-snug font-bold text-discount">
+            {bar.discount}
+          </p>
+        </div>
+      )}
+
       {/* 운영진 코멘트. 카카오맵에 없는 유일한 정보이고 이 앱의 존재 이유라 가장 크게 놓는다. */}
       {bar.note && (
         <section className="mx-4 mt-4 rounded-[18px] border border-accent/30 bg-gradient-to-b from-accent/12 to-accent/5 px-4 pt-[15px] pb-4">
@@ -289,6 +313,26 @@ function ActionBar({ bar }: { bar: Bar }) {
 }
 
 /* 아이콘은 전부 선으로 그린 SVG다. 이모지는 기기마다 모양이 달라 쓰지 않는다. */
+
+/* 퍼센트 기호. "%"만큼 할인이라는 뜻을 설명 없이 전하는 모양이 없다. */
+function DiscountIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2.2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="h-[17px] w-[17px] shrink-0"
+    >
+      <line x1="19" y1="5" x2="5" y2="19" />
+      <circle cx="6.5" cy="6.5" r="2.5" />
+      <circle cx="17.5" cy="17.5" r="2.5" />
+    </svg>
+  )
+}
 
 function QuoteIcon() {
   return (

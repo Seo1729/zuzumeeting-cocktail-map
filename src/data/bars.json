@@ -184,7 +184,7 @@
              { "name": "무알콜 라임모히토", "price": 12000, "base": "NON_ALC", "isSignature": false, "desc": "무알콜 라임모히또" },
              { "name": "망고슬러쉬일걸요", "price": 12000, "base": "NON_ALC", "isSignature": false, "desc": "아 달다." },
              { "name": "라스", "price": 0, "base": "NON_ALC", "isSignature": false, "desc": "무료 · 울지말고 말해보세요 · 고민 상담 해드립니다" }],
-    "instagram": null,
+    "instagram": null, "discount": "동아리 제휴 · 부원 인증 시 일행 전원 7% 할인",
     "dataAsOf": "2026-09"
   },
   {

@@ -396,5 +396,37 @@
     "menu": [],
     "instagram": null,
     "dataAsOf": "2026-09"
+  },
+  {
+    "id": "Dainist",
+    "name": "다이니스트",
+    "district": "기타",
+    "address": "전북 전주시 덕진구 가리내6길 8 1동 1층 102호 Dainist",
+    "lat": 35.844945419361906,
+    "lng": 127.11094732487678,
+    "hours": "18:30 - 03:00",
+    "closedDays": [],
+    "tags": [],
+    "beginnerFriendly": false,
+    "note": "",
+    "menu": [],
+    "instagram": null,
+    "dataAsOf": "2026-09"
+  },
+  {
+    "id": "behind",
+    "name": "비하인드",
+    "district": "신시가지",
+    "address": "전북 전주시 덕진구 아중1길 16 2층 201호",
+    "lat": 35.82863002008075,
+    "lng": 127.17148179418074,
+    "hours": "19:00 - 02:00",
+    "closedDays": [],
+    "tags": [],
+    "beginnerFriendly": false,
+    "note": "",
+    "menu": [],
+    "instagram": null,
+    "dataAsOf": "2026-09"
   }
 ]

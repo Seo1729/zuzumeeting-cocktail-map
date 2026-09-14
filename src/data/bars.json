@@ -380,5 +380,21 @@
     "menu": [],
     "instagram": null,
     "dataAsOf": "2026-09"
+  },
+  {
+    "id": "behind",
+    "name": "비하인드",
+    "district": "신시가지",
+    "address": "전북 전주시 완산구 홍산중앙로 17 하늘향 빌딩 103호",
+    "lat": 35.81515130545816,
+    "lng": 127.10873409939171,
+    "hours": "19:00 - 02:00",
+    "closedDays": ["일"],
+    "tags": [],
+    "beginnerFriendly": false,
+    "note": "신시가지를 대표하는 클래식 바",
+    "menu": [],
+    "instagram": null,
+    "dataAsOf": "2026-09"
   }
 ]

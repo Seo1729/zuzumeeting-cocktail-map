@@ -364,5 +364,21 @@
     "menu": [],
     "instagram": null,
     "dataAsOf": "2026-09"
+  },
+  {
+    "id": "zerr",
+    "name": "제르",
+    "district": "신시가지",
+    "address": "전북 전주시 완산구 홍산북로 46-23 1층",
+    "lat": 35.81678403334655,
+    "lng": 127.10719133301284,
+    "hours": "18:30 - 02:30",
+    "closedDays": [],
+    "tags": [],
+    "beginnerFriendly": false,
+    "note": "온갖 위스키를 맛볼 수 있는 위스키바",
+    "menu": [],
+    "instagram": null,
+    "dataAsOf": "2026-09"
   }
 ]

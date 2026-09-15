@@ -7,8 +7,15 @@ import { NavLink, useLocation } from 'react-router-dom'
 */
 export default function AppShell({ children }: { children: ReactNode }) {
   const { pathname } = useLocation()
-  // 상세 화면은 하단에 자체 액션 버튼이 붙으므로 탭바를 숨긴다.
-  const showTabBar = !pathname.startsWith('/bar/')
+  /*
+    상세 화면에서는 탭바를 숨긴다.
+
+    바 상세는 하단에 '길찾기' 버튼이 고정으로 붙어 자리가 겹친다.
+    칵테일 상세는 버튼이 없지만 같이 숨긴다 — 둘 다 목록에서 하나를 골라 들어간
+    화면이라, 탭이 보이면 어디까지가 '지금 보던 목록'인지 흐려진다.
+    돌아가는 길은 각 화면 위쪽의 ← 버튼이다.
+  */
+  const showTabBar = !pathname.startsWith('/bar/') && !isMenuDetail(pathname)
 
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-[480px] flex-col bg-ink">
@@ -18,11 +25,24 @@ export default function AppShell({ children }: { children: ReactNode }) {
   )
 }
 
+/*
+  '/menu'는 목록이라 탭바를 두고, '/menu/무엇'은 상세라 숨긴다.
+  startsWith('/menu/')로 구분한다 — 뒤에 슬래시가 붙어야만 상세다.
+*/
+function isMenuDetail(pathname: string): boolean {
+  return pathname.startsWith('/menu/')
+}
+
 function TabBar() {
   return (
     <nav className="fixed bottom-0 z-30 w-full max-w-[480px] border-t border-line bg-surface/95 pb-[env(safe-area-inset-bottom)] backdrop-blur">
-      <div className="grid grid-cols-2">
+      {/*
+        칵테일 탭을 가운데 둔다. 리스트("어디 갈까")와 지도가 둘 다 장소를 다루는 화면이고
+        칵테일은 "뭘 시킬까"라 성격이 다른데, 끝에 붙이면 곁다리로 보인다.
+      */}
+      <div className="grid grid-cols-3">
         <TabLink to="/" label="리스트" icon={<ListIcon />} />
+        <TabLink to="/menu" label="칵테일" icon={<GlassIcon />} />
         <TabLink to="/map" label="지도" icon={<MapIcon />} />
       </div>
     </nav>
@@ -74,6 +94,25 @@ function ListIcon() {
       className="h-[21px] w-[21px]"
     >
       <path d="M4 6h16M4 12h16M4 18h16" />
+    </svg>
+  )
+}
+
+/* 마티니 잔. 앱 아이콘과 같은 모양이라 설명 없이 읽힌다. */
+function GlassIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="h-[21px] w-[21px]"
+    >
+      <path d="M4 5h16l-8 8z" />
+      <path d="M12 13v6M8.5 19h7" />
     </svg>
   )
 }

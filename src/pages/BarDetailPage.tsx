@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import SearchInput from '../components/SearchInput'
-import { findBar } from '../domain/bars'
+import { MENU_GROUP_BY_KEY, findBar } from '../domain/bars'
+import { barCount, makeGroupKey } from '../domain/menus'
 import { BASE_SPIRIT_LABEL, DISTRICT_DOT, type Bar, type MenuItem } from '../domain/schema'
 import { filterMenu, formatPrice, orderedMenu } from '../domain/selectors'
 
@@ -215,7 +216,7 @@ function MenuSection({ bar }: { bar: Bar }) {
       ) : (
         <ul className="mt-2">
           {shown.map((item, index) => (
-            <MenuRow key={`${item.name}-${index}`} item={item} />
+            <MenuRow key={`${item.name}-${index}`} item={item} barId={bar.id} />
           ))}
         </ul>
       )}
@@ -223,9 +224,22 @@ function MenuSection({ bar }: { bar: Bar }) {
   )
 }
 
-function MenuRow({ item }: { item: MenuItem }) {
-  return (
-    <li className="flex items-baseline gap-2.5 border-b border-surface-2 py-[13px] last:border-b-0">
+/*
+  메뉴 한 줄.
+
+  다른 바에서도 파는 메뉴면 줄 전체가 비교 화면으로 가는 링크가 된다.
+  한 곳에서만 파는 것은 링크로 만들지 않는다 — 눌러도 견줄 상대가 없는 화면이 뜬다.
+  지금 데이터에서 비교가 되는 것은 268종 중 69종뿐이라, 전부 링크로 만들면
+  네 줄 중 세 줄이 헛걸음이 된다.
+*/
+function MenuRow({ item, barId }: { item: MenuItem; barId: string }) {
+  const group = MENU_GROUP_BY_KEY.get(makeGroupKey(item.name, item.serving))
+  // 자기 자신만 있는 그룹은 비교가 아니다. 같은 바가 두 줄 올린 경우도 barCount가 걸러낸다.
+  const others = group ? barCount(group) - 1 : 0
+  const comparable = others > 0
+
+  const body = (
+    <>
       <div className="min-w-0">
         <p className="text-[16px] font-semibold text-text">
           {item.isSignature && (
@@ -239,6 +253,16 @@ function MenuRow({ item }: { item: MenuItem }) {
           {BASE_SPIRIT_LABEL[item.base]}
           {item.desc && ` · ${item.desc}`}
         </p>
+        {/*
+          "다른 N곳에도 있음"이라고 쓰는 이유: 여기 적힌 값이 싼지 비싼지를
+          이 화면만 보고는 알 수 없고, 그걸 알려주는 화면이 따로 있다는 뜻이다.
+          숫자만 두면 무엇의 개수인지 알 수 없다.
+        */}
+        {comparable && (
+          <p className="mt-1 text-[15px] font-semibold text-accent">
+            다른 {others}곳에도 있음 · 매장별 가격 →
+          </p>
+        )}
       </div>
       {/*
         값은 오른쪽 끝에 고정폭 숫자로. 108개가 쌓이는 화면이라
@@ -253,6 +277,31 @@ function MenuRow({ item }: { item: MenuItem }) {
       >
         {formatPrice(item.price)}
       </p>
+    </>
+  )
+
+  if (!comparable) {
+    return (
+      <li className="flex items-baseline gap-2.5 border-b border-surface-2 py-[13px] last:border-b-0">
+        {body}
+      </li>
+    )
+  }
+
+  return (
+    <li className="border-b border-surface-2 last:border-b-0">
+      {/*
+        -mx-2 px-2: 누를 수 있는 넓이를 카드 여백까지 넓히면서도, 글자는 원래 자리에 둔다.
+        이게 없으면 글자 오른쪽 끝과 값 사이의 빈 곳이 눌리지 않는다.
+        state로 barId를 넘겨, 비교 화면에서 "지금 보고 온 바"를 표시할 수 있게 한다.
+      */}
+      <Link
+        to={`/menu/${encodeURIComponent(makeGroupKey(item.name, item.serving))}`}
+        state={{ fromBarId: barId }}
+        className="-mx-2 flex items-baseline gap-2.5 rounded-xl px-2 py-[13px] active:bg-surface-2"
+      >
+        {body}
+      </Link>
     </li>
   )
 }

@@ -645,5 +645,21 @@
     "menu": [],
     "instagram": null,
     "dataAsOf": "2026-09"
+  },
+  {
+    "id": "smaller-own-bar",
+    "name": "더 작은 바",
+    "district": "기타",
+    "address": "전주 어딘가",
+    "lat": 35.80941589531779,
+    "lng": 127.10971772425734,
+    "hours": "",
+    "closedDays": [],
+    "tags": [],
+    "beginnerFriendly": false,
+    "note": "",
+    "menu": [],
+    "instagram": null,
+    "dataAsOf": "2026-09"
   }
 ]

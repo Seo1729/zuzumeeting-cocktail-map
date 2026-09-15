@@ -5,6 +5,7 @@ import { ALL_BARS } from '../domain/bars'
 import KakaoMapView from '../map/KakaoMapView'
 import type { MapMarker } from '../map/types'
 import { DISTRICT_DOT, type Bar } from '../domain/schema'
+import { isSecretBar } from '../domain/secret'
 import {
   DEFAULT_QUERY,
   DISTRICTS,
@@ -15,6 +16,7 @@ import {
   selectBars,
 } from '../domain/selectors'
 import { useBarQuery } from './useBarQuery'
+import { useSecretUnlock } from './useSecretUnlock'
 import { useUserLocation, type LocationError } from './useUserLocation'
 
 const LOCATION_ERROR_MESSAGE: Record<LocationError, string> = {
@@ -41,6 +43,8 @@ export default function MapPage() {
         lat: bar.lat,
         lng: bar.lng,
         dotColor: DISTRICT_DOT[bar.district],
+        // 잠긴 핀인지 정하는 것은 도메인의 몫이다. 지도는 불리언만 받는다.
+        locked: isSecretBar(bar.id),
       })),
     [bars],
   )
@@ -171,6 +175,14 @@ export default function MapPage() {
 */
 function BottomSheet({ bar, onClose }: { bar: Bar; onClose: () => void }) {
   const menu = headlineMenu(bar)
+  /*
+    잠긴 바는 평도 메뉴도 없어서 그냥 두면 이름 한 줄만 뜬다 — 정보가 없어서 비어 보이는
+    카드와 구별이 안 된다. 핀에 자물쇠를 그려 놓고 시트에서 아무 말도 안 하면 앞뒤가 안 맞는다.
+  */
+  const locked = isSecretBar(bar.id)
+  // 이미 푼 사람에게는 "잠겨 있다"가 틀린 말이 된다. 리스트 카드와 같은 처리다.
+  const { unlockedAt } = useSecretUnlock()
+  const stillLocked = locked && unlockedAt === null
 
   // z-10은 지도 위라는 것을 눈에 보이게 못박아 두는 것이다.
   // 실제로 지도의 z-index를 가두는 것은 KakaoMapView 쪽의 isolate다.
@@ -198,6 +210,12 @@ function BottomSheet({ bar, onClose }: { bar: Bar; onClose: () => void }) {
             <span className="text-[15px] text-muted">{bar.district}</span>
           </div>
 
+          {stillLocked && (
+            <p className="mt-[11px] text-[15px] text-muted">
+              아직 잠겨 있습니다. 눌러서 열어보세요.
+            </p>
+          )}
+
           {menu && (
             <div className="mt-[11px] flex items-baseline gap-2.5">
               <div className="flex min-w-0 items-baseline gap-[7px]">
@@ -221,7 +239,7 @@ function BottomSheet({ bar, onClose }: { bar: Bar; onClose: () => void }) {
           )}
 
           <p className="mt-3 flex items-center gap-1 text-[15px] font-semibold text-accent">
-            자세히 보기
+            {stillLocked ? '열어보기' : '자세히 보기'}
             <svg
               aria-hidden="true"
               viewBox="0 0 24 24"

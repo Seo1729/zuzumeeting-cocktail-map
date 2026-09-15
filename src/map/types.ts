@@ -25,6 +25,15 @@ export interface MapMarker {
     상권과 색을 짝지은 표(DISTRICT_DOT)는 도메인 쪽에 한 벌만 둔다.
   */
   dotColor: string
+  /*
+    자물쇠가 그려진 핀으로 그릴지 여부. 순수하게 생김새를 고르는 값이다.
+
+    지도 레이어는 이 핀이 왜 잠겨 있는지, 무엇으로 열리는지 알지 못한다 —
+    dotColor가 '대학로'를 모르고 색만 받는 것과 같은 규칙이다.
+    누가 잠겨 있는지 정하는 것은 도메인(domain/secret.ts)이고, MapPage가 그 답을
+    이 불리언으로 번역해서 넘긴다.
+  */
+  locked?: boolean
 }
 
 /*

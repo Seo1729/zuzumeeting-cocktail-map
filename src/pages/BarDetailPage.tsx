@@ -4,7 +4,9 @@ import SearchInput from '../components/SearchInput'
 import { MENU_GROUP_BY_KEY, findBar } from '../domain/bars'
 import { barCount, makeGroupKey } from '../domain/menus'
 import { BASE_SPIRIT_LABEL, DISTRICT_DOT, type Bar, type MenuItem } from '../domain/schema'
+import { isSecretBar } from '../domain/secret'
 import { filterMenu, formatPrice, orderedMenu } from '../domain/selectors'
+import SecretBarPage from './SecretBarPage'
 
 /*
   메뉴가 이보다 적으면 검색칸을 띄우지 않는다.
@@ -20,6 +22,15 @@ export default function BarDetailPage() {
   const bar = id ? findBar(id) : undefined
 
   if (!bar) return <NotFound />
+
+  /*
+    잠긴 바는 이 화면을 통째로 다른 화면에 넘긴다.
+
+    주소·영업시간·길찾기는 걸어 들어가는 가게를 전제로 한 칸들이라, 홈바에 그대로
+    붙이면 안내가 아니라 오해가 된다. 여기서 한 줄로 갈라두면 아래 코드는
+    "평범한 바"만 다루면 되고, 이스터에그 쪽 사정이 이 파일로 새어들지 않는다.
+  */
+  if (isSecretBar(bar.id)) return <SecretBarPage bar={bar} />
 
   // pb는 하단 '길찾기' 버튼(fixed)에 가리지 않도록 그 높이 + 홈 인디케이터만큼 비운 값이다.
   return (

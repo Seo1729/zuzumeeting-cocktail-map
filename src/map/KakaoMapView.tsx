@@ -64,6 +64,26 @@ function basePin(dotColor: string): string {
 }
 
 /*
+  자물쇠 핀.
+
+  몸통은 안 고른 핀과 같은 어두운 색이고 테두리와 자물쇠만 금색이다.
+  고른 핀(PIN_SELECTED)은 몸통까지 통째로 금색이라 멀리서도 서로 구별된다.
+
+  안쪽을 상권 색점 대신 자물쇠로 바꾼 이유: 색만 다르면 "새로운 상권인가" 싶지
+  "눌러도 안 열린다"는 뜻으로는 읽히지 않는다. 그림이 있어야 잠긴 것이
+  고장이 아니라 의도라는 게 누르기 전에 전달된다.
+*/
+const PIN_LOCKED = (() => {
+  const body =
+    '<path d="M14 1c-7.2 0-13 5.8-13 13 0 9 11.3 19.4 11.8 19.8a1.8 1.8 0 0 0 2.4 0C15.7 33.4 27 23 27 14c0-7.2-5.8-13-13-13z" fill="#1f1f29" stroke="#e8b45c" stroke-width="1.6"/>'
+  const shackle =
+    '<path d="M12.1 12.6v-1.4a1.9 1.9 0 0 1 3.8 0v1.4" fill="none" stroke="#e8b45c" stroke-width="1.5" stroke-linecap="round"/>'
+  const bodyLock = '<rect x="10.6" y="12.4" width="6.8" height="5.4" rx="1.4" fill="#e8b45c"/>'
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="36" viewBox="0 0 28 36">${body}${shackle}${bodyLock}</svg>`
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
+})()
+
+/*
   사용자 위치는 물방울 핀이 아니라 점으로 그린다.
   핀은 "여기 가게가 있다"는 뜻으로 이미 쓰고 있어서, 같은 모양이면 바로 착각한다.
   색도 accent(주황)를 피해 파랑을 쓴다 — 지도 앱들의 공통 관례라 설명이 필요 없다.
@@ -80,6 +100,19 @@ const USER_ACCURACY_STYLE = {
   fillOpacity: 0.12,
 } as const
 
+/*
+  선택되지 않았을 때 그 마커가 쓸 이미지.
+
+  마커를 만들 때와 선택이 풀릴 때 두 곳에서 같은 판단을 해야 해서 함수로 뽑았다.
+  한쪽만 고치면 잠긴 핀이 한 번 눌린 뒤 평범한 핀으로 굳어버린다.
+*/
+function restingImage(
+  images: { base: (dotColor: string) => KakaoMarkerImage; locked: KakaoMarkerImage },
+  look: { dotColor: string; locked: boolean },
+): KakaoMarkerImage {
+  return look.locked ? images.locked : images.base(look.dotColor)
+}
+
 export default function KakaoMapView({
   markers,
   selectedId,
@@ -89,12 +122,19 @@ export default function KakaoMapView({
   const { status, maps, error } = useKakaoLoader()
   const containerRef = useRef<HTMLDivElement | null>(null)
   const mapRef = useRef<KakaoMap | null>(null)
-  // 선택이 풀릴 때 어떤 색 핀으로 되돌릴지 알아야 해서 색을 같이 들고 있는다.
-  const markerRefs = useRef<Map<string, { marker: KakaoMarker; dotColor: string }>>(new Map())
+  /*
+    선택이 풀릴 때 어떤 핀으로 되돌릴지 알아야 해서 색과 잠금 여부를 같이 들고 있는다.
+    locked를 안 들고 있으면, 잠긴 핀을 한 번 눌렀다 놓는 순간 평범한 핀으로 바뀌어
+    다시는 자물쇠가 돌아오지 않는다.
+  */
+  const markerRefs = useRef<Map<string, { marker: KakaoMarker; dotColor: string; locked: boolean }>>(
+    new Map(),
+  )
   const imagesRef = useRef<{
     /** 상권 색마다 핀 이미지를 한 번만 만들어 돌려쓴다. */
     base: (dotColor: string) => KakaoMarkerImage
     selected: KakaoMarkerImage
+    locked: KakaoMarkerImage
     user: KakaoMarkerImage
   } | null>(null)
   const userRefs = useRef<{ dot: KakaoMarker; circle: KakaoCircle } | null>(null)
@@ -129,6 +169,9 @@ export default function KakaoMapView({
       selected: new maps.MarkerImage(PIN_SELECTED, new maps.Size(28, 36), {
         offset: new maps.Point(14, 36),
       }),
+      locked: new maps.MarkerImage(PIN_LOCKED, new maps.Size(28, 36), {
+        offset: new maps.Point(14, 36),
+      }),
       // 핀은 뾰족한 끝이 좌표를 가리키지만(offset y=36), 점은 한가운데가 좌표다.
       user: new maps.MarkerImage(USER_DOT, new maps.Size(20, 20), {
         offset: new maps.Point(10, 10),
@@ -154,19 +197,23 @@ export default function KakaoMapView({
     const images = imagesRef.current
     if (!maps || !map || !images) return
 
-    const created = new globalThis.Map<string, { marker: KakaoMarker; dotColor: string }>()
+    const created = new globalThis.Map<
+      string,
+      { marker: KakaoMarker; dotColor: string; locked: boolean }
+    >()
     const bounds = new maps.LatLngBounds()
 
     for (const item of markers) {
       const position = new maps.LatLng(item.lat, item.lng)
+      const look = { dotColor: item.dotColor, locked: item.locked === true }
       const marker = new maps.Marker({
         position,
         title: item.name,
-        image: images.base(item.dotColor),
+        image: restingImage(images, look),
       })
       marker.setMap(map)
       maps.event.addListener(marker, 'click', () => onSelectRef.current(item.id))
-      created.set(item.id, { marker, dotColor: item.dotColor })
+      created.set(item.id, { marker, ...look })
       bounds.extend(position)
     }
 
@@ -195,7 +242,7 @@ export default function KakaoMapView({
 
     for (const [id, entry] of markerRefs.current) {
       const isSelected = id === selectedId
-      entry.marker.setImage(isSelected ? images.selected : images.base(entry.dotColor))
+      entry.marker.setImage(isSelected ? images.selected : restingImage(images, entry))
       entry.marker.setZIndex(isSelected ? 10 : 1)
     }
 

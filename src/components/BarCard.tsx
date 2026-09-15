@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom'
 import { DISTRICT_DOT, type Bar } from '../domain/schema'
+import { isSecretBar } from '../domain/secret'
 import { formatPrice, headlineMenu } from '../domain/selectors'
+import { useSecretUnlock } from '../pages/useSecretUnlock'
 
 /*
   리스트의 카드 한 장. "오늘 어디 갈까"를 3초 안에 정하게 하는 것이 목적이라
@@ -8,6 +10,13 @@ import { formatPrice, headlineMenu } from '../domain/selectors'
 */
 export default function BarCard({ bar }: { bar: Bar }) {
   const menu = headlineMenu(bar)
+  /*
+    잠긴 바 카드에만 쓰는 값이지만 훅이라 조건부로 부를 수 없다.
+    첫 렌더에 저장소를 한 번 읽을 뿐이라 카드가 몇 장이든 비용이 없다.
+
+    이미 푼 사람에게 "잠겨 있음"이라고 계속 적어두면 그냥 틀린 말이 된다.
+  */
+  const { unlockedAt } = useSecretUnlock()
 
   /*
     아직 위치만 있고 평도 메뉴도 없는 곳.
@@ -16,6 +25,31 @@ export default function BarCard({ bar }: { bar: Bar }) {
     말로 밝히고 테두리를 점선으로 바꿔, 채워진 카드와 한눈에 구분되게 한다.
     누르면 주소와 길찾기는 나오므로 링크는 그대로 살려둔다.
   */
+  /*
+    잠긴 바.
+
+    아래 isStub보다 먼저 걸러야 한다. 평도 메뉴도 태그도 없어서 조건상 stub에 걸리는데,
+    그러면 점선 테두리에 "위치만 등록됨"이라고 떠서 아직 안 채운 데이터로 보인다.
+    잠긴 것은 미완성이 아니라 의도라, 실선 테두리에 자물쇠를 달아 눌러볼 마음이 들게 한다.
+  */
+  if (isSecretBar(bar.id)) {
+    return (
+      <Link
+        to={`/bar/${bar.id}`}
+        className="flex items-center gap-2 rounded-[18px] border border-accent/25 bg-gradient-to-b from-[#1a1a23] to-surface px-4 py-4 active:bg-surface-2"
+      >
+        <span className="shrink-0 text-accent">
+          <LockIcon open={unlockedAt !== null} />
+        </span>
+        <h2 className="truncate text-[19px] font-bold tracking-[-0.02em] text-text">{bar.name}</h2>
+        <span className="shrink-0 text-[15px] text-muted">{bar.district}</span>
+        <span className="ml-auto shrink-0 text-[15px] font-semibold text-accent">
+          {unlockedAt !== null ? '해제됨' : '잠겨 있음'}
+        </span>
+      </Link>
+    )
+  }
+
   const isStub = !bar.note && !menu && bar.tags.length === 0 && !bar.discount
 
   if (isStub) {
@@ -111,6 +145,28 @@ export default function BarCard({ bar }: { bar: Bar }) {
         </p>
       )}
     </Link>
+  )
+}
+
+/*
+  잠긴 바 카드의 자물쇠. 지도 핀에 그린 것과 같은 모양이라 둘이 같은 곳으로 읽힌다.
+  풀고 나면 고리만 열어 그린다 — 몸통이 같아서 같은 바라는 것은 그대로 전해진다.
+*/
+function LockIcon({ open }: { open: boolean }) {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2.2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="h-3.5 w-3.5"
+    >
+      <rect x="4" y="10.5" width="16" height="10.5" rx="2.4" />
+      <path d={open ? 'M7.8 10.5V7.2a4.2 4.2 0 0 1 8.2-1.3' : 'M7.8 10.5V7.2a4.2 4.2 0 0 1 8.4 0v3.3'} />
+    </svg>
   )
 }
 

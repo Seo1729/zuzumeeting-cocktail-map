@@ -27,8 +27,12 @@ const PARAM = {
 /** useBarQuery와 같은 값. 주소창에 긴 문자열을 붙여 만든 링크가 돌아다니는 것을 막는다. */
 const KEYWORD_MAX = 40
 
+/*
+  trim()하지 않는다 — 입력창 값이 URL을 한 바퀴 돌아오므로, 뒤 공백을 자르면 띄어쓰기를
+  칠 수 없다. 자세한 이유는 useBarQuery의 같은 함수 주석을 볼 것.
+*/
 function parseKeyword(value: string | null): string {
-  return (value ?? '').trim().slice(0, KEYWORD_MAX)
+  return (value ?? '').slice(0, KEYWORD_MAX)
 }
 
 function parseBase(value: string | null): BaseFilter {
@@ -58,7 +62,7 @@ export function useMenuQuery(): [MenuQuery, (patch: Partial<MenuQuery>) => void]
     (patch: Partial<MenuQuery>) => {
       const next = { ...query, ...patch }
       const params = new URLSearchParams()
-      if (next.keyword !== '') params.set(PARAM.keyword, next.keyword)
+      if (next.keyword.trim() !== '') params.set(PARAM.keyword, next.keyword)
       if (next.base !== DEFAULT_MENU_QUERY.base) params.set(PARAM.base, next.base)
       if (next.multiOnly) params.set(PARAM.multi, '1')
       if (next.sort !== DEFAULT_MENU_QUERY.sort) params.set(PARAM.sort, next.sort)

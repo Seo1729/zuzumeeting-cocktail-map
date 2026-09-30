@@ -31,8 +31,19 @@ const PARAM = {
 */
 const KEYWORD_MAX = 40
 
+/*
+  여기서 trim()하면 안 된다.
+
+  입력창의 값이 URL을 한 바퀴 돌아 이 함수를 거쳐 되돌아오는 구조라, '진 '(공백으로 끝남)을
+  치는 순간 뒤 공백이 잘려 '진'으로 돌아온다. 그러면 띄어쓰기를 칠 수가 없어서
+  '진 토닉'이 언제나 '진토닉'이 된다. 실제로 그렇게 신고가 들어왔다.
+
+  공백을 지워도 검색 결과는 달라지지 않는다(normalizeForSearch가 공백을 다 지우고 비교한다).
+  그래서 화면에 보이는 글자와 URL의 글자는 손대지 않고, 공백뿐인 검색어를 빈 것으로 치는 일은
+  값을 URL에 쓰는 쪽(update)이 맡는다.
+*/
 function parseKeyword(value: string | null): string {
-  return (value ?? '').trim().slice(0, KEYWORD_MAX)
+  return (value ?? '').slice(0, KEYWORD_MAX)
 }
 
 function parseDistrict(value: string | null): DistrictFilter {
@@ -73,7 +84,8 @@ export function useBarQuery(): [BarQuery, (patch: Partial<BarQuery>) => void] {
       if (next.beginnerOnly) params.set(PARAM.beginner, '1')
       if (next.priceBand !== DEFAULT_QUERY.priceBand) params.set(PARAM.price, next.priceBand)
       if (next.sort !== DEFAULT_QUERY.sort) params.set(PARAM.sort, next.sort)
-      if (next.keyword !== '') params.set(PARAM.keyword, next.keyword)
+      // 공백뿐인 검색어는 검색하지 않는 것과 같으니 URL에 남기지 않는다. 맨 앞 공백은 칠 수 없게 된다.
+      if (next.keyword.trim() !== '') params.set(PARAM.keyword, next.keyword)
       // replace: 칩을 여러 번 누른 뒤 뒤로가기가 필터 조작 이력에 갇히지 않게 한다.
       setSearchParams(params, { replace: true })
     },
